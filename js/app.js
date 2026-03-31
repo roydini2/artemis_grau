@@ -11,11 +11,12 @@ const IMAGE_SCALE_MOBILE = 0.72;
 const FOOD_DRAW_OPTS = { vBiasMobile: -40 };
 const STATUE_DRAW_OPTS = {
   scaleDesktop: 1.0,
-  scaleMobile: 0.65,
+  scaleMobile: 1.05,
   vBiasDesktop: 40,
-  vBiasMobile: 40,
+  vBiasMobile: 50,
   hBiasDesktop: 0,
-  hBiasMobile: 0
+  hBiasMobile: -220,
+  feather: true
 };
 
 // ===== DOM =====
@@ -122,6 +123,7 @@ function drawFrame(ctx, frames, index, bgColor, opts) {
   const mobile = stableMobile;
   const scaleOverride = mobile ? (o.scaleMobile || IMAGE_SCALE_MOBILE) : (o.scaleDesktop || IMAGE_SCALE);
   const scale = Math.max(cw / iw, ch / ih) * scaleOverride;
+
   const dw = iw * scale;
   const dh = ih * scale;
 
@@ -133,6 +135,21 @@ function drawFrame(ctx, frames, index, bgColor, opts) {
   ctx.fillStyle = bgColor;
   ctx.fillRect(0, 0, cw, ch);
   ctx.drawImage(img, dx, dy, dw, dh);
+
+  if (mobile && o.feather) {
+    const f = 80;
+    const topG = ctx.createLinearGradient(0, 0, 0, f);
+    topG.addColorStop(0, bgColor);
+    topG.addColorStop(1, 'transparent');
+    ctx.fillStyle = topG;
+    ctx.fillRect(0, 0, cw, f);
+
+    const botG = ctx.createLinearGradient(0, ch - f, 0, ch);
+    botG.addColorStop(0, 'transparent');
+    botG.addColorStop(1, bgColor);
+    ctx.fillStyle = botG;
+    ctx.fillRect(0, ch - f, cw, f);
+  }
 }
 
 function loadFrameSet(count, pathTemplate, onProgress) {
