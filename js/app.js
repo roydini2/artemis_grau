@@ -99,8 +99,11 @@ function updateStableDimensions(forceHeight) {
 }
 
 function setupCanvas(canvas, ctx) {
-  canvas.width = stableW * stableDPR;
-  canvas.height = stableH * stableDPR;
+  const pad = 2;
+  canvas.width = (stableW + pad) * stableDPR;
+  canvas.height = (stableH + pad) * stableDPR;
+  canvas.style.width = (stableW + pad) + 'px';
+  canvas.style.height = (stableH + pad) + 'px';
   ctx.setTransform(stableDPR, 0, 0, stableDPR, 0, 0);
 }
 
