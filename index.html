@@ -2,10 +2,9 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Restaurant Artemis | Griechisches Restaurant Berlin Schöneweide – Direkt an der Spree</title>
   <meta name="description" content="Restaurant Artemis in Berlin-Niederschöneweide: Authentische griechische Küche, Grillspezialitäten vom Holzkohlegrill, Sommerterrasse direkt an der Spree. Über 80 Gerichte, Mittagskarte, Veranstaltungen. Seit 1997.">
-  <meta name="keywords" content="griechisches Restaurant Berlin, Restaurant Schöneweide, griechisch essen Berlin, Grieche Niederschöneweide, Terrasse Spree Berlin, griechische Küche, Souvlaki Berlin, Restaurant an der Spree, Artemis Berlin, griechisches Restaurant Treptow">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Restaurant Artemis | Griechisches Restaurant Berlin Schöneweide">
   <meta property="og:description" content="Authentische griechische Küche direkt an der Spree. Grillspezialitäten, Sommerterrasse, über 80 Gerichte. Seit 1997.">
@@ -46,8 +45,8 @@
     },
     "geo": {
       "@type": "GeoCoordinates",
-      "latitude": 52.4567,
-      "longitude": 13.5123
+      "latitude": 52.4547,
+      "longitude": 13.5140
     },
     "servesCuisine": ["Griechisch", "Mediterran"],
     "priceRange": "€€",
@@ -64,36 +63,9 @@
       "ratingValue": "4.7",
       "reviewCount": "2000",
       "bestRating": "5"
-    },
-    "review": [
-      {
-        "@type": "Review",
-        "author": {"@type": "Person", "name": "Michael S."},
-        "datePublished": "2025-11-14",
-        "reviewRating": {"@type": "Rating", "ratingValue": "5"},
-        "reviewBody": "Bestes griechisches Restaurant in Berlin! Die Lammkoteletts vom Grill sind unglaublich und die Terrasse an der Spree ist im Sommer ein Traum."
-      },
-      {
-        "@type": "Review",
-        "author": {"@type": "Person", "name": "Sandra K."},
-        "datePublished": "2025-09-22",
-        "reviewRating": {"@type": "Rating", "ratingValue": "5"},
-        "reviewBody": "Seit Jahren unser Lieblingsgrieche. Frische Zutaten, riesige Portionen und das freundlichste Personal in ganz Schöneweide."
-      },
-      {
-        "@type": "Review",
-        "author": {"@type": "Person", "name": "Thomas R."},
-        "datePublished": "2026-01-08",
-        "reviewRating": {"@type": "Rating", "ratingValue": "5"},
-        "reviewBody": "Unvergesslicher Abend auf der Terrasse direkt an der Spree. Das Essen war hervorragend, besonders die Meeresfrüchte-Platte. Absolute Empfehlung!"
-      }
-    ]
+    }
   }
   </script>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="css/style.css">
   <script>if('scrollRestoration' in history)history.scrollRestoration='manual';window.scrollTo(0,0);</script>
@@ -116,7 +88,7 @@
 
   <header class="site-header" id="site-header">
     <nav class="header-nav">
-      <a href="#" class="header-logo">ARTEMIS</a>
+      <a href="#hero" class="header-logo">ARTEMIS</a>
       <ul class="header-links">
         <li><a href="#speisekarte">Speisekarte</a></li>
         <li><a href="#terrasse">Terrasse</a></li>
@@ -125,7 +97,7 @@
         <li><a href="#kontakt">Kontakt</a></li>
       </ul>
       <a href="#reservierung-telefon" class="header-cta">Reservieren</a>
-      <button class="menu-toggle" aria-label="Menü öffnen" id="menu-toggle">
+      <button type="button" class="menu-toggle" aria-label="Menü öffnen" aria-expanded="false" aria-controls="mobile-nav" id="menu-toggle">
         <span></span><span></span><span></span>
       </button>
     </nav>
@@ -413,10 +385,23 @@
           </div>
         </div>
       </div>
+      <div class="contact-anfahrt" id="anfahrt" data-anim="fade-up">
+        <span class="contact-label">Anfahrt</span>
+        <div class="contact-anfahrt-cols">
+          <div class="contact-anfahrt-item">
+            <p class="contact-anfahrt-line"><strong>Bus</strong></p>
+            <p class="contact-anfahrt-line">Linie <strong>165</strong> bis <strong>Schnellerstr./Köllnische Str.</strong> (Berlin) — von dort etwa <strong>1 Minute</strong> zu Fuß.</p>
+          </div>
+          <div class="contact-anfahrt-item">
+            <p class="contact-anfahrt-line"><strong>S-Bahn</strong></p>
+            <p class="contact-anfahrt-line">Linie <strong>S47</strong> bis <strong>Berlin-Schöneweide</strong> — von dort etwa <strong>10 Minuten</strong> zu Fuß.</p>
+          </div>
+        </div>
+      </div>
       <div class="map-container" data-anim="fade-up">
         <div class="map-consent" id="map-consent">
           <div class="map-consent-inner">
-            <p class="map-consent-text">Durch Laden der Karte akzeptieren Sie die Datenschutzerklärung von Google.</p>
+            <p class="map-consent-text">Mit „Karte laden“ willigen Sie in die Datenübermittlung an Google ein. Details: <a href="datenschutz.html#google-maps">Datenschutz</a>.</p>
             <button class="map-consent-btn" id="map-consent-btn">Karte laden</button>
           </div>
         </div>
@@ -442,6 +427,11 @@
             <p>Di.&ndash;So. 12&ndash;23 Uhr<br>Mo. Ruhetag</p>
           </div>
         </div>
+        <nav class="footer-legal" aria-label="Rechtliches">
+          <a href="impressum.html">Impressum</a>
+          <span class="footer-legal-sep" aria-hidden="true">·</span>
+          <a href="datenschutz.html">Datenschutz</a>
+        </nav>
         <p class="footer-copy">&copy; Restaurant Artemis &middot; Griechisches Restaurant in Berlin-Schöneweide</p>
       </div>
     </footer>

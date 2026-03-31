@@ -67,16 +67,28 @@ function initInPageAnchors() {
 }
 
 // ===== MOBILE MENU =====
-menuToggle.addEventListener('click', () => {
-  mobileNav.classList.toggle('open');
-  document.body.style.overflow = mobileNav.classList.contains('open') ? 'hidden' : '';
-});
+function setMobileNavOpen(open) {
+  if (!mobileNav || !menuToggle) return;
+  mobileNav.classList.toggle('open', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+  menuToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  menuToggle.setAttribute('aria-label', open ? 'Menü schließen' : 'Menü öffnen');
+}
 
-mobileNav.querySelectorAll('a').forEach(link => {
-  link.addEventListener('click', () => {
-    mobileNav.classList.remove('open');
-    document.body.style.overflow = '';
+if (menuToggle && mobileNav) {
+  menuToggle.addEventListener('click', () => {
+    setMobileNavOpen(!mobileNav.classList.contains('open'));
   });
+
+  mobileNav.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => setMobileNavOpen(false));
+  });
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape' || !mobileNav || !mobileNav.classList.contains('open')) return;
+  setMobileNavOpen(false);
+  if (menuToggle) menuToggle.focus();
 });
 
 // ===== CANVAS SETUP =====
@@ -152,61 +164,81 @@ function drawFrame(ctx, frames, index, bgColor, opts) {
   }
 }
 
-function loadFrameSet(count, pathTemplate, onProgress) {
-  return new Promise((resolve) => {
-    const frames = new Array(count);
-    let loaded = 0;
-    for (let i = 0; i < count; i++) {
-      const img = new Image();
-      img.onload = () => {
-        frames[i] = img;
-        loaded++;
-        if (onProgress) onProgress(loaded);
-        if (loaded === count) resolve(frames);
-      };
-      img.onerror = () => {
-        loaded++;
-        if (onProgress) onProgress(loaded);
-        if (loaded === count) resolve(frames);
-      };
-      img.src = pathTemplate.replace('NNNN', String(i + 1).padStart(4, '0'));
-    }
+function loadImagePromise(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('img'));
+    img.src = src;
   });
 }
 
-// ===== PRELOADER =====
-function initPreloader() {
+function nearestLoadedFrameIndex(frames, wantIdx) {
+  for (let k = wantIdx; k >= 0; k--) {
+    const im = frames[k];
+    if (im && im.complete && im.naturalWidth) return k;
+  }
+  return 0;
+}
+
+function kickoffParallelFrameLoad(count, pathTemplate, targetArr, startIndex) {
+  const start = startIndex == null ? 0 : startIndex;
+  for (let i = start; i < count; i++) {
+    if (targetArr[i]) continue;
+    const img = new Image();
+    const idx = i;
+    img.onload = () => { targetArr[idx] = img; };
+    img.onerror = () => {};
+    img.src = pathTemplate.replace('NNNN', String(idx + 1).padStart(4, '0'));
+  }
+}
+
+let statueLoadTriggered = false;
+function triggerStatueFramesLoad() {
+  if (statueLoadTriggered) return;
+  statueLoadTriggered = true;
+  kickoffParallelFrameLoad(STATUE_FRAME_COUNT, 'frames-statue/frame_NNNN.webp', statueFrames, 0);
+}
+
+function initStatueIdlePreload() {
+  const zone = document.getElementById('artemis');
+  const run = () => triggerStatueFramesLoad();
+  if (zone) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          run();
+          io.disconnect();
+        }
+      },
+      { rootMargin: '480px 0px' }
+    );
+    io.observe(zone);
+  }
+  if (typeof requestIdleCallback === 'function') {
+    requestIdleCallback(() => run(), { timeout: 2800 });
+  } else {
+    setTimeout(run, 2200);
+  }
+}
+
+async function initPreloaderQuick() {
   const preloader = document.getElementById('preloader');
   const bar = document.getElementById('preloader-bar');
   const percent = document.getElementById('preloader-percent');
-  const totalFrames = FOOD_FRAME_COUNT + STATUE_FRAME_COUNT;
-  let loadedCount = 0;
-
-  function updateProgress(loaded) {
-    loadedCount = loaded;
-    const pct = Math.round((loadedCount / totalFrames) * 100);
-    bar.style.width = pct + '%';
-    percent.textContent = pct;
+  try {
+    const first = await loadImagePromise('frames/frame_0001.webp');
+    foodFrames[0] = first;
+    if (bar) bar.style.width = '100%';
+    if (percent) percent.textContent = '100';
+  } catch {
+    if (bar) bar.style.width = '100%';
+    if (percent) percent.textContent = '100';
   }
-
-  return new Promise(async (resolve) => {
-    const [loadedFood, loadedStatue] = await Promise.all([
-      loadFrameSet(FOOD_FRAME_COUNT, 'frames/frame_NNNN.webp', (n) => updateProgress(n)),
-      loadFrameSet(STATUE_FRAME_COUNT, 'frames-statue/frame_NNNN.webp', (n) => updateProgress(FOOD_FRAME_COUNT + n))
-    ]);
-
-    bar.style.width = '100%';
-    percent.textContent = '100';
-
-    await new Promise(r => setTimeout(r, 400));
-
-    preloader.classList.add('done');
-
-    await new Promise(r => setTimeout(r, 800));
-    preloader.style.display = 'none';
-
-    resolve({ loadedFood, loadedStatue });
-  });
+  await new Promise((r) => setTimeout(r, 220));
+  if (preloader) preloader.classList.add('done');
+  await new Promise((r) => setTimeout(r, 800));
+  if (preloader) preloader.style.display = 'none';
 }
 
 // ===== HEADER SCROLL =====
@@ -277,8 +309,9 @@ function initFoodCanvasScroll() {
     onUpdate: (self) => {
       const accelerated = Math.min(self.progress * FRAME_SPEED, 1);
       const index = Math.min(Math.floor(accelerated * FOOD_FRAME_COUNT), FOOD_FRAME_COUNT - 1);
-      if (index !== currentFoodFrame && foodFrames[index]) {
-        currentFoodFrame = index;
+      const useIdx = nearestLoadedFrameIndex(foodFrames, index);
+      if (useIdx !== currentFoodFrame && foodFrames[useIdx]) {
+        currentFoodFrame = useIdx;
         requestAnimationFrame(() => drawFrame(ctxFood, foodFrames, currentFoodFrame, '#F2E4CF', FOOD_DRAW_OPTS));
       }
     }
@@ -331,8 +364,9 @@ function initStatueCanvasScroll() {
     onUpdate: (self) => {
       const accelerated = Math.min(self.progress * FRAME_SPEED, 1);
       const index = Math.min(Math.floor(accelerated * STATUE_FRAME_COUNT), STATUE_FRAME_COUNT - 1);
-      if (index !== currentStatueFrame && statueFrames[index]) {
-        currentStatueFrame = index;
+      const useIdx = nearestLoadedFrameIndex(statueFrames, index);
+      if (useIdx !== currentStatueFrame && statueFrames[useIdx]) {
+        currentStatueFrame = useIdx;
         requestAnimationFrame(() => drawFrame(ctxStatue, statueFrames, currentStatueFrame, '#E8D5B8', STATUE_DRAW_OPTS));
       }
     }
@@ -543,13 +577,12 @@ async function init() {
   setupCanvas(canvasFood, ctxFood);
   setupCanvas(canvasStatue, ctxStatue);
 
-  const { loadedFood, loadedStatue } = await initPreloader();
+  await initPreloaderQuick();
 
-  loadedFood.forEach((f, i) => { if (f) foodFrames[i] = f; });
-  loadedStatue.forEach((f, i) => { if (f) statueFrames[i] = f; });
+  kickoffParallelFrameLoad(FOOD_FRAME_COUNT, 'frames/frame_NNNN.webp', foodFrames, 1);
+  initStatueIdlePreload();
 
   if (foodFrames[0]) drawFrame(ctxFood, foodFrames, 0, '#F2E4CF', FOOD_DRAW_OPTS);
-  if (statueFrames[0]) drawFrame(ctxStatue, statueFrames, 0, '#E8D5B8', STATUE_DRAW_OPTS);
 
   initHeroAnimation();
   initHeroParallax();
