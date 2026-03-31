@@ -1,5 +1,4 @@
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-window.scrollTo(0, 0);
 
 const MAX_CANVAS_DPR = 2;
 
@@ -46,6 +45,13 @@ const lenis = new Lenis({
   smoothWheel: true,
   touchMultiplier: 1.5
 });
+
+function syncScrollTop() {
+  window.scrollTo(0, 0);
+  lenis.scrollTo(0, { immediate: true });
+}
+
+syncScrollTop();
 
 lenis.on('scroll', ScrollTrigger.update);
 gsap.ticker.add((time) => lenis.raf(time * 1000));
@@ -595,6 +601,20 @@ async function init() {
   initMarquee();
   initCounters();
   initBackToTop();
+
+  window.addEventListener('load', () => {
+    if (isReloadNavigation()) {
+      syncScrollTop();
+      ScrollTrigger.refresh();
+    }
+  });
+
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted || isReloadNavigation()) {
+      syncScrollTop();
+      ScrollTrigger.refresh();
+    }
+  });
 
   window.addEventListener('resize', onResize);
 

@@ -11,8 +11,8 @@ Statische Marketing-Website für **Restaurant Artemis** (griechische Küche, Ber
 - **HTML5** — eine Hauptseite (`index.html`), rechtliche Seiten als eigene Dateien
 - **CSS3** — zentrale Styles in `css/style.css` (kein CSS-Framework)
 - **Vanilla JavaScript** — gesamte Interaktion und Animation in `js/app.js`
-- **GSAP 3** + **ScrollTrigger** — Scroll-Animationen und Choreografie (CDN)
-- **Lenis** — sanftes Scrollen, gekoppelt an GSAP-Ticker (CDN)
+- **GSAP 3** + **ScrollTrigger** — Scroll-Animationen und Choreografie (`js/vendor/`, selbst gehostet)
+- **Lenis** — sanftes Scrollen, gekoppelt an GSAP-Ticker (`js/vendor/`, selbst gehostet)
 - **Canvas 2D** — Frame-Sequenzen für zwei scrollgebundene „Video“-Bereiche (Essen + Statue)
 - **PWA-Light** — `manifest.json` für Install-Hinweis / Meta
 - **Hosting-Konfiguration** — `vercel.json` (statisches Root-Verzeichnis)
