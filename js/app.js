@@ -1,6 +1,8 @@
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 window.scrollTo(0, 0);
 
+const MAX_CANVAS_DPR = 2;
+
 // ===== CONFIGURATION =====
 const FOOD_FRAME_COUNT = 50;
 const STATUE_FRAME_COUNT = 63;
@@ -94,7 +96,7 @@ document.addEventListener('keydown', (e) => {
 // ===== CANVAS SETUP =====
 let stableW = document.documentElement.clientWidth;
 let stableH = window.visualViewport ? window.visualViewport.height : document.documentElement.clientHeight;
-let stableDPR = window.devicePixelRatio || 1;
+let stableDPR = Math.min(window.devicePixelRatio || 1, MAX_CANVAS_DPR);
 let stableMobile = stableW < 768;
 
 function getStableHeight() {
@@ -105,7 +107,7 @@ function updateStableDimensions(forceHeight) {
   const newW = document.documentElement.clientWidth;
   stableW = newW;
   stableMobile = newW < 768;
-  stableDPR = window.devicePixelRatio || 1;
+  stableDPR = Math.min(window.devicePixelRatio || 1, MAX_CANVAS_DPR);
   if (forceHeight) {
     stableH = getStableHeight();
   }
@@ -119,8 +121,6 @@ function setupCanvas(canvas, ctx) {
   canvas.style.height = (stableH + pad) + 'px';
   ctx.setTransform(stableDPR, 0, 0, stableDPR, 0, 0);
 }
-
-function isMobile() { return stableMobile; }
 
 function drawFrame(ctx, frames, index, bgColor, opts) {
   const img = frames[index];
@@ -200,26 +200,19 @@ function triggerStatueFramesLoad() {
   kickoffParallelFrameLoad(STATUE_FRAME_COUNT, 'frames-statue/frame_NNNN.webp', statueFrames, 0);
 }
 
-function initStatueIdlePreload() {
+function initStatueFramesNearViewport() {
   const zone = document.getElementById('artemis');
-  const run = () => triggerStatueFramesLoad();
-  if (zone) {
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          run();
-          io.disconnect();
-        }
-      },
-      { rootMargin: '480px 0px' }
-    );
-    io.observe(zone);
-  }
-  if (typeof requestIdleCallback === 'function') {
-    requestIdleCallback(() => run(), { timeout: 2800 });
-  } else {
-    setTimeout(run, 2200);
-  }
+  if (!zone) return;
+  const io = new IntersectionObserver(
+    (entries) => {
+      if (entries.some((e) => e.isIntersecting)) {
+        triggerStatueFramesLoad();
+        io.disconnect();
+      }
+    },
+    { rootMargin: '720px 0px' }
+  );
+  io.observe(zone);
 }
 
 async function initPreloaderQuick() {
@@ -241,11 +234,22 @@ async function initPreloaderQuick() {
   if (preloader) preloader.style.display = 'none';
 }
 
-// ===== HEADER SCROLL =====
-function initHeader() {
+// ===== HEADER + FAB (one passive scroll pipeline) =====
+function initScrollChrome() {
+  const fabTop = document.getElementById('fab-top');
+  let scheduled = false;
+  const tick = () => {
+    scheduled = false;
+    const y = window.scrollY;
+    if (header) header.classList.toggle('scrolled', y > 80);
+    if (fabTop) fabTop.classList.toggle('visible', y > 400);
+  };
   window.addEventListener('scroll', () => {
-    header.classList.toggle('scrolled', window.scrollY > 80);
+    if (scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(tick);
   }, { passive: true });
+  tick();
 }
 
 // ===== HERO ANIMATION — Letter Reveal =====
@@ -541,11 +545,6 @@ function initCounters() {
 function initBackToTop() {
   const btn = document.getElementById('fab-top');
   if (!btn) return;
-
-  window.addEventListener('scroll', () => {
-    btn.classList.toggle('visible', window.scrollY > 400);
-  }, { passive: true });
-
   btn.addEventListener('click', () => {
     lenis.scrollTo(0, { duration: 1.5 });
   });
@@ -571,7 +570,7 @@ function onResize() {
 
 // ===== INIT =====
 async function init() {
-  initHeader();
+  initScrollChrome();
   initInPageAnchors();
 
   setupCanvas(canvasFood, ctxFood);
@@ -580,7 +579,7 @@ async function init() {
   await initPreloaderQuick();
 
   kickoffParallelFrameLoad(FOOD_FRAME_COUNT, 'frames/frame_NNNN.webp', foodFrames, 1);
-  initStatueIdlePreload();
+  initStatueFramesNearViewport();
 
   if (foodFrames[0]) drawFrame(ctxFood, foodFrames, 0, '#F2E4CF', FOOD_DRAW_OPTS);
 
