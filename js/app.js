@@ -37,13 +37,11 @@ let currentFoodFrame = 0;
 let currentStatueFrame = 0;
 
 // ===== LENIS =====
-const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 const lenis = new Lenis({
   duration: 1.2,
   easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
   smoothWheel: true,
-  smoothTouch: false,
-  touchMultiplier: 1.0
+  touchMultiplier: 1.5
 });
 
 lenis.on('scroll', ScrollTrigger.update);
@@ -549,16 +547,6 @@ async function init() {
   initBackToTop();
 
   window.addEventListener('resize', onResize);
-
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', (e) => {
-      const vv = window.visualViewport;
-      if (Math.abs(vv.scale - 1) > 0.01) {
-        vv.scale = 1;
-        return;
-      }
-    });
-  }
 
   window.addEventListener('orientationchange', () => {
     setTimeout(() => {

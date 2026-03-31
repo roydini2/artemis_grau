@@ -27,7 +27,7 @@
 html {
   font-size: 16px;
   overflow-x: hidden;
-  overscroll-behavior: none;
+  overscroll-behavior-x: none;
 }
 
 body {
@@ -36,7 +36,7 @@ body {
   color: var(--text-on-light);
   line-height: 1.6;
   overflow-x: hidden;
-  overscroll-behavior: none;
+  overscroll-behavior-x: none;
   -webkit-text-size-adjust: 100%;
 }
 
