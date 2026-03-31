@@ -37,11 +37,13 @@ let currentFoodFrame = 0;
 let currentStatueFrame = 0;
 
 // ===== LENIS =====
+const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 const lenis = new Lenis({
   duration: 1.2,
   easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
   smoothWheel: true,
-  touchMultiplier: 1.5
+  smoothTouch: false,
+  touchMultiplier: 1.0
 });
 
 lenis.on('scroll', ScrollTrigger.update);
@@ -80,9 +82,13 @@ mobileNav.querySelectorAll('a').forEach(link => {
 
 // ===== CANVAS SETUP =====
 let stableW = document.documentElement.clientWidth;
-let stableH = document.documentElement.clientHeight;
+let stableH = window.visualViewport ? window.visualViewport.height : document.documentElement.clientHeight;
 let stableDPR = window.devicePixelRatio || 1;
 let stableMobile = stableW < 768;
+
+function getStableHeight() {
+  return window.visualViewport ? window.visualViewport.height : document.documentElement.clientHeight;
+}
 
 function updateStableDimensions(forceHeight) {
   const newW = document.documentElement.clientWidth;
@@ -90,13 +96,15 @@ function updateStableDimensions(forceHeight) {
   stableMobile = newW < 768;
   stableDPR = window.devicePixelRatio || 1;
   if (forceHeight) {
-    stableH = document.documentElement.clientHeight;
+    stableH = getStableHeight();
   }
 }
 
 function setupCanvas(canvas, ctx) {
   canvas.width = stableW * stableDPR;
   canvas.height = stableH * stableDPR;
+  canvas.style.width = stableW + 'px';
+  canvas.style.height = stableH + 'px';
   ctx.setTransform(stableDPR, 0, 0, stableDPR, 0, 0);
 }
 
@@ -541,6 +549,17 @@ async function init() {
   initBackToTop();
 
   window.addEventListener('resize', onResize);
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', (e) => {
+      const vv = window.visualViewport;
+      if (Math.abs(vv.scale - 1) > 0.01) {
+        vv.scale = 1;
+        return;
+      }
+    });
+  }
+
   window.addEventListener('orientationchange', () => {
     setTimeout(() => {
       updateStableDimensions(true);
