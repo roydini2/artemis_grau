@@ -857,7 +857,7 @@ img { display: block; max-width: 100%; height: auto; }
   font-size: clamp(3rem, 7.5vw, 9.5rem);
   font-weight: 700;
   letter-spacing: 0.04em;
-  color: #6b5f52;
+  color: rgba(107, 95, 82, 0.55);
   display: inline-block;
   text-transform: uppercase;
 }
