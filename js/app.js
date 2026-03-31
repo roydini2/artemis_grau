@@ -508,14 +508,18 @@ function initMarquee() {
   const track = document.getElementById('marquee-track');
   if (!track) return;
 
-  gsap.to(track, {
-    xPercent: -33.33,
-    ease: 'none',
-    scrollTrigger: {
-      trigger: track.parentElement,
-      start: 'top bottom',
-      end: 'bottom top',
-      scrub: true
+  const section = track.parentElement;
+  const dead = 0.14;
+  const cycles = 2.75;
+
+  ScrollTrigger.create({
+    trigger: section,
+    start: 'top 91%',
+    end: 'bottom top',
+    scrub: true,
+    onUpdate(self) {
+      const t = Math.max(0, (self.progress - dead) / (1 - dead));
+      gsap.set(track, { xPercent: -33.33 * t * cycles });
     }
   });
 }
