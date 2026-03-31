@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restaurant Artemis | Griechisches Restaurant Berlin Schöneweide – Direkt an der Spree</title>
+  <meta name="description" content="Restaurant Artemis in Berlin-Niederschöneweide: Authentische griechische Küche, Grillspezialitäten vom Holzkohlegrill, Sommerterrasse direkt an der Spree. Über 80 Gerichte, Mittagskarte, Veranstaltungen. Seit 1997.">
+  <meta name="keywords" content="griechisches Restaurant Berlin, Restaurant Schöneweide, griechisch essen Berlin, Grieche Niederschöneweide, Terrasse Spree Berlin, griechische Küche, Souvlaki Berlin, Restaurant an der Spree, Artemis Berlin, griechisches Restaurant Treptow">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Restaurant Artemis | Griechisches Restaurant Berlin Schöneweide">
+  <meta property="og:description" content="Authentische griechische Küche direkt an der Spree. Grillspezialitäten, Sommerterrasse, über 80 Gerichte. Seit 1997.">
+  <meta property="og:locale" content="de_DE">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Restaurant Artemis | Griechisches Restaurant Berlin">
+  <meta name="twitter:description" content="Authentische griechische Küche direkt an der Spree in Berlin-Schöneweide. Seit 1997.">
+  <meta name="geo.region" content="DE-BE">
+  <meta name="geo.placename" content="Berlin-Niederschöneweide">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Restaurant",
+    "name": "Restaurant Artemis",
+    "image": "public/images/terasse.webp",
+    "url": "",
+    "telephone": "+493067822870",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Schnellerstr. 97",
+      "addressLocality": "Berlin",
+      "postalCode": "12439",
+      "addressCountry": "DE"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 52.4567,
+      "longitude": 13.5123
+    },
+    "servesCuisine": ["Griechisch", "Mediterran"],
+    "priceRange": "€€",
+    "openingHoursSpecification": [
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+        "opens": "12:00",
+        "closes": "23:00"
+      }
+    ],
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.7",
+      "reviewCount": "2000",
+      "bestRating": "5"
+    },
+    "review": [
+      {
+        "@type": "Review",
+        "author": {"@type": "Person", "name": "Michael S."},
+        "datePublished": "2025-11-14",
+        "reviewRating": {"@type": "Rating", "ratingValue": "5"},
+        "reviewBody": "Bestes griechisches Restaurant in Berlin! Die Lammkoteletts vom Grill sind unglaublich und die Terrasse an der Spree ist im Sommer ein Traum."
+      },
+      {
+        "@type": "Review",
+        "author": {"@type": "Person", "name": "Sandra K."},
+        "datePublished": "2025-09-22",
+        "reviewRating": {"@type": "Rating", "ratingValue": "5"},
+        "reviewBody": "Seit Jahren unser Lieblingsgrieche. Frische Zutaten, riesige Portionen und das freundlichste Personal in ganz Schöneweide."
+      },
+      {
+        "@type": "Review",
+        "author": {"@type": "Person", "name": "Thomas R."},
+        "datePublished": "2026-01-08",
+        "reviewRating": {"@type": "Rating", "ratingValue": "5"},
+        "reviewBody": "Unvergesslicher Abend auf der Terrasse direkt an der Spree. Das Essen war hervorragend, besonders die Meeresfrüchte-Platte. Absolute Empfehlung!"
+      }
+    ]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="site-header" id="site-header">
+    <nav class="header-nav">
+      <a href="#" class="header-logo">ARTEMIS</a>
+      <ul class="header-links">
+        <li><a href="#speisekarte">Speisekarte</a></li>
+        <li><a href="#terrasse">Terrasse</a></li>
+        <li><a href="#artemis">Geschichte</a></li>
+        <li><a href="#feiern">Feiern</a></li>
+        <li><a href="#kontakt">Kontakt</a></li>
+      </ul>
+      <a href="#reservierung-telefon" class="header-cta">Reservieren</a>
+      <button class="menu-toggle" aria-label="Menü öffnen" id="menu-toggle">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <div class="mobile-nav" id="mobile-nav">
+    <ul>
+      <li><a href="#speisekarte">Speisekarte</a></li>
+      <li><a href="#terrasse">Terrasse</a></li>
+      <li><a href="#artemis">Geschichte</a></li>
+      <li><a href="#feiern">Feiern</a></li>
+      <li><a href="#kontakt">Kontakt</a></li>
+      <li><a href="#reservierung-telefon" class="mobile-phone">Reservieren</a></li>
+    </ul>
+  </div>
+
+  <!-- Fixed canvas layers -->
+  <div class="canvas-wrap" id="canvas-wrap">
+    <canvas id="canvas-food"></canvas>
+  </div>
+  <div class="canvas-wrap" id="canvas-wrap-statue">
+    <canvas id="canvas-statue"></canvas>
+  </div>
+
+  <main id="smooth-content">
+
+    <!-- HERO (overlays the food canvas which is visible from the start) -->
+    <section class="hero" id="hero">
+      <div class="hero-content">
+        <span class="label label--hero">Griechische Küche in Berlin</span>
+        <h1 class="hero-heading"><span class="hero-heading-core">ARTE</span><span class="hero-heading-tail">MIS</span></h1>
+        <p class="hero-tagline">Direkt an der Spree seit 1997</p>
+        <a href="#reservierung-telefon" class="hero-cta">Tisch reservieren</a>
+        <p class="hero-reservation-note">Nur telefonische Reservierungen</p>
+      </div>
+      <div class="scroll-indicator">
+        <span>Entdecken</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+      </div>
+    </section>
+
+    <!-- FOOD CANVAS SCROLL ZONE -->
+    <section class="scroll-zone" id="kueche">
+      <div class="scroll-zone-text align-left">
+        <span class="label">Unsere Küche</span>
+        <h2 class="heading">Vom Grill auf den Teller</h2>
+        <p class="body-text">
+          Unsere Küche ehrt die griechische Tradition: frische Zutaten,
+          offenes Feuer, ehrliches Handwerk. Jedes Gericht wird mit Sorgfalt
+          auf dem Holzkohlegrill zubereitet — so schmeckt Griechenland.
+        </p>
+      </div>
+    </section>
+
+    <!-- SPEISEKARTE (directly after food video) -->
+    <section class="section" id="speisekarte">
+      <div class="section-split">
+        <div class="section-text" data-anim="fade-up">
+          <span class="label">Unsere Vielfalt</span>
+          <h2 class="heading">Mehr als 80 Gerichte</h2>
+          <p class="body-text">
+            Von klassischen Souvlaki über frische Meeresfrüchte bis hin zu
+            vegetarischen Köstlichkeiten — unsere Speisekarte bietet für jeden
+            Geschmack das Richtige. Dazu eine preiswerte Mittagskarte und
+            alle Speisen auch zum Mitnehmen.
+          </p>
+          <div class="karten-links">
+            <a href="public/speisekarte/Speisekarte-Artemis.pdf" target="_blank" rel="noopener" class="karte-link">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              Speisekarte
+            </a>
+            <a href="public/speisekarte/mittagskarte.pdf" target="_blank" rel="noopener" class="karte-link">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              Mittagskarte
+            </a>
+            <a href="public/speisekarte/Eiskarte-Artemis.pdf" target="_blank" rel="noopener" class="karte-link">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              Eiskarte
+            </a>
+          </div>
+        </div>
+        <div class="section-media" data-anim="fade-up" data-delay="0.15">
+          <div class="gallery-fan">
+            <img src="public/images/shrimp.webp" alt="Gegrillte Garnelen-Spieße im griechischen Restaurant Artemis Berlin" loading="lazy" width="800" height="600">
+            <img src="public/images/steak-plate.webp" alt="Steak vom Holzkohlegrill mit gegrilltem Gemüse" loading="lazy" width="821" height="600">
+            <img src="public/images/steak-cut.webp" alt="Saftiges Steak – griechische Grillspezialität" loading="lazy" width="1000" height="487">
+            <img src="public/images/tzatziki.webp" alt="Hausgemachter Tzatziki – griechische Vorspeise" loading="lazy" width="750" height="562">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TERRASSE -->
+    <section class="section section-warm" id="terrasse">
+      <div class="section-split">
+        <div class="section-text" data-anim="fade-up">
+          <span class="label">Terrasse</span>
+          <h2 class="heading">Direkt an der Spree</h2>
+          <p class="body-text">
+            Im Frühling, Sommer und Herbst erwartet Sie unsere Außenterrasse
+            mit Blick auf den vorbeiziehenden Schiffsverkehr. Genießen Sie
+            griechische Küche unter freiem Himmel — ein Stück Griechenland
+            mitten in Berlin-Niederschöneweide.
+          </p>
+        </div>
+        <div class="section-media" data-anim="fade-up" data-delay="0.15">
+          <img src="public/images/terasse.webp" alt="Sommerterrasse Restaurant Artemis direkt an der Spree in Berlin-Schöneweide" class="section-image" loading="lazy" width="2240" height="1250">
+        </div>
+      </div>
+    </section>
+
+    <!-- YAMAS -->
+    <section class="section section-welcome" id="willkommen">
+      <div class="welcome-content" data-anim="fade-up">
+        <span class="label">Yamas — Auf Ihr Wohl</span>
+        <h2 class="heading">Wir freuen uns, Sie begrüßen zu dürfen</h2>
+        <p class="body-text body-text--wide">
+          Im Artemis ist jeder Abend ein kleines Fest. Zu Ihrem Essen servieren
+          wir eiskalten Ouzo, ausgewählte griechische Weine aus Makedonien und
+          dem Peloponnes sowie hausgemachte Limonaden. Ob ein kräftiger Agiorgitiko
+          zum Lammkotelett oder ein frischer Assyrtiko zur Dorade — unsere Getränkekarte
+          ergänzt jedes Gericht perfekt.
+        </p>
+        <p class="body-text body-text--wide">
+          Das Artemis ist ein Ort für die ganze Familie. Kinder sind bei uns herzlich
+          willkommen und auch Ihr Vierbeiner darf mit — wir sind hundefreundlich.
+          Was 1997 als Familientradition begann, lebt heute in zweiter Generation weiter:
+          griechische Philoxenia, Gastfreundschaft von Herzen, direkt an der Spree.
+        </p>
+        <div class="welcome-tags" aria-label="Merkmale">
+          <span class="welcome-tag">Familienfreundlich</span>
+          <span class="welcome-tag">Hundefreundlich</span>
+          <span class="welcome-tag">Griechische Weine</span>
+          <span class="welcome-tag">Ouzo &amp; Tsipouro</span>
+          <span class="welcome-tag">Seit 1997</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- BEWERTUNGEN (mit Stats) -->
+    <section class="section section-reviews" id="bewertungen">
+      <div class="reviews-stats" data-anim="stagger-up">
+        <div class="stat">
+          <span class="stat-number" data-value="4.7" data-decimals="1">0</span>
+          <span class="stat-suffix">&#9733;</span>
+          <span class="stat-label">Google Bewertung</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number" data-value="2000" data-decimals="0">0</span>
+          <span class="stat-suffix">+</span>
+          <span class="stat-label">Bewertungen</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number" data-value="80" data-decimals="0">0</span>
+          <span class="stat-suffix">+</span>
+          <span class="stat-label">Innenplätze</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number" data-value="80" data-decimals="0">0</span>
+          <span class="stat-suffix">+</span>
+          <span class="stat-label">Terrassenplätze</span>
+        </div>
+      </div>
+      <div class="reviews-grid" data-anim="stagger-up">
+        <blockquote class="review-card">
+          <div class="review-stars" aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p class="review-text">„Bestes griechisches Restaurant in Berlin! Die Lammkoteletts vom Grill sind unglaublich und die Terrasse an der Spree ist im Sommer ein Traum."</p>
+          <footer class="review-author">
+            <strong>Michael S.</strong>
+            <span>Google Bewertung</span>
+          </footer>
+        </blockquote>
+        <blockquote class="review-card">
+          <div class="review-stars" aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p class="review-text">„Seit Jahren unser Lieblingsgrieche. Frische Zutaten, riesige Portionen und das freundlichste Personal in ganz Schöneweide. Immer wieder gerne!"</p>
+          <footer class="review-author">
+            <strong>Sandra K.</strong>
+            <span>Google Bewertung</span>
+          </footer>
+        </blockquote>
+        <blockquote class="review-card">
+          <div class="review-stars" aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p class="review-text">„Unvergesslicher Abend auf der Terrasse direkt an der Spree. Das Essen war hervorragend, besonders die Meeresfrüchte-Platte. Absolute Empfehlung!"</p>
+          <footer class="review-author">
+            <strong>Thomas R.</strong>
+            <span>Google Bewertung</span>
+          </footer>
+        </blockquote>
+      </div>
+    </section>
+
+    <!-- ARTEMIS STATUE CANVAS SCROLL ZONE -->
+    <section class="scroll-zone scroll-zone--statue" id="artemis">
+      <div class="scroll-zone-text align-left">
+        <span class="label">Unsere Geschichte</span>
+        <h2 class="heading">Die Göttin Artemis</h2>
+        <p class="body-text">
+          Artemis — griechische Göttin der Jagd und der Natur.
+          Ihr Name steht für die Verbindung zwischen Mensch und Erde,
+          zwischen Feuer und Genuss. Wie die Göttin selbst bringen wir
+          ein Stück unberührtes Griechenland nach Berlin: ehrliche Zutaten,
+          offene Flamme, mediterrane Gastfreundschaft direkt an der Spree.
+        </p>
+      </div>
+    </section>
+
+    <!-- FEIERN -->
+    <section class="section section-sand" id="feiern">
+      <div class="section-split">
+        <div class="section-text" data-anim="fade-up">
+          <span class="label">Ihre Feier</span>
+          <h2 class="heading">Feiern Sie bei uns</h2>
+          <p class="body-text">
+            Sie suchen eine besondere Location mit gemütlichem Ambiente direkt an der Spree?
+            Ob Firmenfeier, Weihnachtsfeier, Geburtstag, Hochzeit oder einfach Ihre Party —
+            wir stellen uns perfekt auf Ihren Anlass ein.
+          </p>
+          <div class="feier-kapazitaet">
+            <div class="kap-item">
+              <span class="kap-zahl">80</span>
+              <span class="kap-text">Plätze im Restaurant</span>
+            </div>
+            <div class="kap-item">
+              <span class="kap-zahl">80</span>
+              <span class="kap-text">Plätze auf der Terrasse</span>
+            </div>
+            <div class="kap-item">
+              <span class="kap-zahl">35</span>
+              <span class="kap-text">Veranstaltungsraum</span>
+            </div>
+          </div>
+          <p class="body-text body-text--note">
+            Rufen Sie uns an — wir beraten Sie gerne.<br>
+            Nur telefonische Reservierungen.
+          </p>
+          <a href="#reservierung-telefon" class="cta-button">Jetzt anrufen</a>
+        </div>
+        <div class="section-media" data-anim="fade-up" data-delay="0.15">
+          <div class="gallery-fan">
+            <img src="public/images/feier/feier-1.webp" alt="Griechisches Buffet für Veranstaltungen" loading="lazy" width="278" height="208">
+            <img src="public/images/feier/feier-2.webp" alt="Festliche Buffet-Auswahl im Restaurant Artemis" loading="lazy" width="278" height="208">
+            <img src="public/images/feier/feier-3.webp" alt="Frischer Salatteller für Ihre Feier" loading="lazy" width="278" height="208">
+            <img src="public/images/feier/feier-4.webp" alt="Warmes Buffet im Restaurant Artemis" loading="lazy" width="278" height="208">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- KONTAKT -->
+    <section class="section section-dark section-contact" id="kontakt">
+      <div class="contact-grid" data-anim="fade-up">
+        <div class="contact-left">
+          <span class="label label--gold">Besuchen Sie uns</span>
+          <h2 class="heading heading--light">Öffnungszeiten &amp; Kontakt</h2>
+        </div>
+        <div class="contact-right">
+          <div class="contact-block">
+            <span class="contact-label">Öffnungszeiten</span>
+            <p>Di. – So.: 12:00 – 23:00 Uhr</p>
+            <p class="contact-note">Montag Ruhetag</p>
+          </div>
+          <div class="contact-block">
+            <span class="contact-label">Adresse</span>
+            <p>Schnellerstr. 97</p>
+            <p>12439 Berlin</p>
+          </div>
+          <div class="contact-block" id="reservierung-telefon">
+            <span class="contact-label">Reservierung</span>
+            <p>Tel.: 030 67822870</p>
+            <p class="contact-note">Nur telefonische Reservierungen</p>
+          </div>
+        </div>
+      </div>
+      <div class="map-container" data-anim="fade-up">
+        <div class="map-consent" id="map-consent">
+          <div class="map-consent-inner">
+            <p class="map-consent-text">Durch Laden der Karte akzeptieren Sie die Datenschutzerklärung von Google.</p>
+            <button class="map-consent-btn" id="map-consent-btn">Karte laden</button>
+          </div>
+        </div>
+        <iframe id="map-iframe" class="map-iframe" width="100%" height="100%" style="border:0" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade" title="Restaurant Artemis auf Google Maps"></iframe>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <p>&copy; Restaurant Artemis &middot; Schnellerstr. 97, 12439 Berlin &middot; Griechisches Restaurant in Berlin-Schöneweide</p>
+    </footer>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
