@@ -1,0 +1,27 @@
+{
+  "name": "Restaurant Artemis",
+  "short_name": "Artemis",
+  "description": "Griechisches Restaurant in Berlin-Schöneweide – Direkt an der Spree seit 1997",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#111111",
+  "theme_color": "#C9A96E",
+  "lang": "de",
+  "icons": [
+    {
+      "src": "public/favicon.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "public/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "public/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
