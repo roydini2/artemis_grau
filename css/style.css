@@ -24,7 +24,10 @@
   box-sizing: border-box;
 }
 
-html { font-size: 16px; }
+html {
+  font-size: 16px;
+  overflow-x: hidden;
+}
 
 body {
   font-family: var(--font-body);
@@ -32,6 +35,7 @@ body {
   color: var(--text-on-light);
   line-height: 1.6;
   overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
 }
 
 img { display: block; max-width: 100%; height: auto; }
@@ -266,12 +270,15 @@ img { display: block; max-width: 100%; height: auto; }
   z-index: 1;
   opacity: 0;
   pointer-events: none;
+  touch-action: pan-y;
+  -webkit-touch-callout: none;
 }
 
 .canvas-wrap canvas {
   width: 100%;
   height: 100%;
   display: block;
+  touch-action: pan-y;
 }
 
 #canvas-wrap-statue { z-index: 1; }
@@ -677,10 +684,11 @@ img { display: block; max-width: 100%; height: auto; }
 
 .terrasse-image {
   width: 100%;
-  height: 100%;
+  height: 125%;
   object-fit: cover;
   transform: scale(1);
   transition: transform 8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
 }
 
 .terrasse-image-wrap.ken-burns .terrasse-image {
@@ -1329,7 +1337,12 @@ img { display: block; max-width: 100%; height: auto; }
   }
 
   .scroll-zone { height: 80vh; padding-top: 20vh; margin-bottom: 3rem; }
-  .scroll-zone--statue { height: 120vh; }
+  .scroll-zone--statue {
+    height: 120vh;
+    align-items: flex-end;
+    padding-top: 0;
+    padding-bottom: 6vh;
+  }
   .scroll-zone--stats {
     height: auto;
     min-height: 60vh;
@@ -1344,6 +1357,14 @@ img { display: block; max-width: 100%; height: auto; }
     background: rgba(232, 213, 184, 0.78);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
+  }
+
+  .scroll-zone--statue .scroll-zone-text {
+    top: auto;
+    position: relative;
+    background: rgba(232, 213, 184, 0.72);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
 
   .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 2rem; }

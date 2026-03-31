@@ -5,17 +5,17 @@ window.scrollTo(0, 0);
 const FOOD_FRAME_COUNT = 50;
 const STATUE_FRAME_COUNT = 63;
 const FRAME_SPEED = 2.6;
-const IMAGE_SCALE = 0.88;
+const IMAGE_SCALE = 1.0;
 const IMAGE_SCALE_MOBILE = 0.72;
 
 const FOOD_DRAW_OPTS = { vBiasMobile: -40 };
 const STATUE_DRAW_OPTS = {
-  scaleDesktop: 0.95,
-  scaleMobile: 0.88,
+  scaleDesktop: 1.0,
+  scaleMobile: 0.48,
   vBiasDesktop: 40,
-  vBiasMobile: 20,
-  hBiasDesktop: -60,
-  hBiasMobile: 40
+  vBiasMobile: 90,
+  hBiasDesktop: 0,
+  hBiasMobile: 0
 };
 
 // ===== DOM =====
@@ -79,34 +79,40 @@ mobileNav.querySelectorAll('a').forEach(link => {
 });
 
 // ===== CANVAS SETUP =====
-let stableVH = window.innerHeight;
+let stableW = document.documentElement.clientWidth;
+let stableH = document.documentElement.clientHeight;
+let stableDPR = window.devicePixelRatio || 1;
+let stableMobile = stableW < 768;
 
-function updateStableVH() {
-  stableVH = window.innerHeight;
+function updateStableDimensions(forceHeight) {
+  const newW = document.documentElement.clientWidth;
+  stableW = newW;
+  stableMobile = newW < 768;
+  stableDPR = window.devicePixelRatio || 1;
+  if (forceHeight) {
+    stableH = document.documentElement.clientHeight;
+  }
 }
 
 function setupCanvas(canvas, ctx) {
-  const dpr = window.devicePixelRatio || 1;
-  const w = window.innerWidth;
-  const h = stableVH;
-  canvas.width = w * dpr;
-  canvas.height = h * dpr;
-  ctx.scale(dpr, dpr);
+  canvas.width = stableW * stableDPR;
+  canvas.height = stableH * stableDPR;
+  ctx.setTransform(stableDPR, 0, 0, stableDPR, 0, 0);
 }
 
-function isMobile() { return window.innerWidth < 768; }
+function isMobile() { return stableMobile; }
 
 function drawFrame(ctx, frames, index, bgColor, opts) {
   const img = frames[index];
   if (!img) return;
   const o = opts || {};
 
-  const cw = window.innerWidth;
-  const ch = stableVH;
+  const cw = stableW;
+  const ch = stableH;
   const iw = img.naturalWidth;
   const ih = img.naturalHeight;
 
-  const mobile = isMobile();
+  const mobile = stableMobile;
   const scaleOverride = mobile ? (o.scaleMobile || IMAGE_SCALE_MOBILE) : (o.scaleDesktop || IMAGE_SCALE);
   const scale = Math.max(cw / iw, ch / ih) * scaleOverride;
   const dw = iw * scale;
@@ -395,6 +401,40 @@ function initKenBurns() {
   });
 }
 
+// ===== TERRASSE PARALLAX =====
+function initTerrasseParallax() {
+  const img = document.querySelector('.terrasse-image');
+  if (!img) return;
+
+  gsap.to(img, {
+    yPercent: -12,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: '.section-terrasse',
+      start: 'top bottom',
+      end: 'bottom top',
+      scrub: true
+    }
+  });
+}
+
+// ===== SCROLL-ZONE TEXT ENTRANCE =====
+function initScrollZoneTextReveal() {
+  document.querySelectorAll('.scroll-zone-text').forEach(el => {
+    gsap.from(el, {
+      y: 30,
+      opacity: 0,
+      duration: 0.5,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: el,
+        start: 'top 85%',
+        toggleActions: 'play none none none'
+      }
+    });
+  });
+}
+
 // ===== MARQUEE SCROLL =====
 function initMarquee() {
   const track = document.getElementById('marquee-track');
@@ -454,18 +494,21 @@ function initBackToTop() {
 }
 
 // ===== RESIZE =====
-let lastWidth = window.innerWidth;
+let resizeTimer = null;
 
 function onResize() {
-  const newWidth = window.innerWidth;
-  if (newWidth !== lastWidth) {
-    lastWidth = newWidth;
-    updateStableVH();
-  }
-  setupCanvas(canvasFood, ctxFood);
-  setupCanvas(canvasStatue, ctxStatue);
-  if (foodFrames[currentFoodFrame]) drawFrame(ctxFood, foodFrames, currentFoodFrame, '#F2E4CF', FOOD_DRAW_OPTS);
-  if (statueFrames[currentStatueFrame]) drawFrame(ctxStatue, statueFrames, currentStatueFrame, '#E8D5B8', STATUE_DRAW_OPTS);
+  const newW = document.documentElement.clientWidth;
+  if (newW === stableW) return;
+
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    updateStableDimensions(true);
+    setupCanvas(canvasFood, ctxFood);
+    setupCanvas(canvasStatue, ctxStatue);
+    if (foodFrames[currentFoodFrame]) drawFrame(ctxFood, foodFrames, currentFoodFrame, '#F2E4CF', FOOD_DRAW_OPTS);
+    if (statueFrames[currentStatueFrame]) drawFrame(ctxStatue, statueFrames, currentStatueFrame, '#E8D5B8', STATUE_DRAW_OPTS);
+    ScrollTrigger.refresh();
+  }, 150);
 }
 
 // ===== INIT =====
@@ -490,12 +533,24 @@ async function init() {
   initStatueCanvasScroll();
   initMapConsent();
   initRevealAnimations();
+  initScrollZoneTextReveal();
   initKenBurns();
+  initTerrasseParallax();
   initMarquee();
   initCounters();
   initBackToTop();
 
   window.addEventListener('resize', onResize);
+  window.addEventListener('orientationchange', () => {
+    setTimeout(() => {
+      updateStableDimensions(true);
+      setupCanvas(canvasFood, ctxFood);
+      setupCanvas(canvasStatue, ctxStatue);
+      if (foodFrames[currentFoodFrame]) drawFrame(ctxFood, foodFrames, currentFoodFrame, '#F2E4CF', FOOD_DRAW_OPTS);
+      if (statueFrames[currentStatueFrame]) drawFrame(ctxStatue, statueFrames, currentStatueFrame, '#E8D5B8', STATUE_DRAW_OPTS);
+      ScrollTrigger.refresh();
+    }, 300);
+  });
 }
 
 if (document.readyState === 'loading') {
