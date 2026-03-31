@@ -11,9 +11,9 @@ const IMAGE_SCALE_MOBILE = 0.72;
 const FOOD_DRAW_OPTS = { vBiasMobile: -40 };
 const STATUE_DRAW_OPTS = {
   scaleDesktop: 1.0,
-  scaleMobile: 0.48,
+  scaleMobile: 0.65,
   vBiasDesktop: 40,
-  vBiasMobile: 90,
+  vBiasMobile: 40,
   hBiasDesktop: 0,
   hBiasMobile: 0
 };
@@ -101,8 +101,6 @@ function updateStableDimensions(forceHeight) {
 function setupCanvas(canvas, ctx) {
   canvas.width = stableW * stableDPR;
   canvas.height = stableH * stableDPR;
-  canvas.style.width = stableW + 'px';
-  canvas.style.height = stableH + 'px';
   ctx.setTransform(stableDPR, 0, 0, stableDPR, 0, 0);
 }
 
