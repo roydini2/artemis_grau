@@ -331,6 +331,7 @@ img { display: block; max-width: 100%; height: auto; }
   display: flex;
   align-items: flex-start;
   padding-top: 30vh;
+  margin-bottom: clamp(3rem, 6vw, 6rem);
 }
 
 .scroll-zone--stats {
@@ -768,7 +769,7 @@ img { display: block; max-width: 100%; height: auto; }
 .section-welcome {
   background: var(--bg-sand);
   text-align: center;
-  overflow: hidden;
+  overflow: clip;
 }
 
 .section-welcome::before {
@@ -778,7 +779,7 @@ img { display: block; max-width: 100%; height: auto; }
   left: 50%;
   transform: translate(-50%, -50%);
   font-family: var(--font-display);
-  font-size: clamp(8rem, 20vw, 18rem);
+  font-size: clamp(6rem, 18vw, 18rem);
   font-weight: 700;
   letter-spacing: 0.08em;
   color: var(--text-on-light);
@@ -786,6 +787,8 @@ img { display: block; max-width: 100%; height: auto; }
   pointer-events: none;
   white-space: nowrap;
   line-height: 1;
+  width: 100%;
+  text-align: center;
 }
 
 .welcome-content {
@@ -930,6 +933,20 @@ img { display: block; max-width: 100%; height: auto; }
     direction: ltr;
   }
 
+  .gallery-fan {
+    height: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .gallery-fan img {
+    position: static !important;
+    width: 100% !important;
+    transform: none !important;
+    aspect-ratio: 4 / 3;
+  }
+
   .contact-grid { grid-template-columns: 1fr; }
   .contact-right { grid-template-columns: 1fr 1fr; gap: 1.5rem; }
   .reviews-grid { grid-template-columns: 1fr; max-width: 560px; }
@@ -982,7 +999,7 @@ img { display: block; max-width: 100%; height: auto; }
     bottom: 1.5rem;
   }
 
-  .scroll-zone { height: 80vh; padding-top: 20vh; }
+  .scroll-zone { height: 80vh; padding-top: 20vh; margin-bottom: 3rem; }
   .scroll-zone--statue { height: 120vh; }
   .scroll-zone--stats {
     height: auto;
@@ -1003,10 +1020,6 @@ img { display: block; max-width: 100%; height: auto; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 2rem; }
   .feier-kapazitaet { grid-template-columns: 1fr; gap: 1rem; }
 
-  .gallery-fan {
-    height: 380px;
-  }
-
   .karten-links { flex-direction: column; }
   .karte-link { justify-content: center; }
 }
@@ -1023,18 +1036,9 @@ img { display: block; max-width: 100%; height: auto; }
 
   .welcome-content { padding: 0 0.5rem; }
 
-  .gallery-fan {
-    height: auto;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
-  }
+  .gallery-fan { gap: 0.5rem; }
 
   .gallery-fan img {
-    position: static !important;
-    width: 100% !important;
-    transform: none !important;
-    aspect-ratio: 4 / 3;
     box-shadow: 0 4px 16px rgba(42, 31, 23, 0.1);
   }
 }

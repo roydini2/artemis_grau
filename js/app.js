@@ -8,11 +8,11 @@ const IMAGE_SCALE_MOBILE = 0.72;
 const FOOD_DRAW_OPTS = { vBiasMobile: -40 };
 const STATUE_DRAW_OPTS = {
   scaleDesktop: 0.95,
-  scaleMobile: 0.78,
+  scaleMobile: 0.88,
   vBiasDesktop: 40,
-  vBiasMobile: 30,
+  vBiasMobile: 20,
   hBiasDesktop: -60,
-  hBiasMobile: -20
+  hBiasMobile: 40
 };
 
 // ===== DOM =====
@@ -77,10 +77,16 @@ mobileNav.querySelectorAll('a').forEach(link => {
 });
 
 // ===== CANVAS SETUP =====
+let stableVH = window.innerHeight;
+
+function updateStableVH() {
+  stableVH = window.innerHeight;
+}
+
 function setupCanvas(canvas, ctx) {
   const dpr = window.devicePixelRatio || 1;
   const w = window.innerWidth;
-  const h = window.innerHeight;
+  const h = stableVH;
   canvas.width = w * dpr;
   canvas.height = h * dpr;
   ctx.scale(dpr, dpr);
@@ -94,7 +100,7 @@ function drawFrame(ctx, frames, index, bgColor, opts) {
   const o = opts || {};
 
   const cw = window.innerWidth;
-  const ch = window.innerHeight;
+  const ch = stableVH;
   const iw = img.naturalWidth;
   const ih = img.naturalHeight;
 
@@ -314,7 +320,14 @@ function initCounters() {
 }
 
 // ===== RESIZE =====
+let lastWidth = window.innerWidth;
+
 function onResize() {
+  const newWidth = window.innerWidth;
+  if (newWidth !== lastWidth) {
+    lastWidth = newWidth;
+    updateStableVH();
+  }
   setupCanvas(canvasFood, ctxFood);
   setupCanvas(canvasStatue, ctxStatue);
   if (foodFrames[currentFoodFrame]) drawFrame(ctxFood, foodFrames, currentFoodFrame, '#F2E4CF', FOOD_DRAW_OPTS);
