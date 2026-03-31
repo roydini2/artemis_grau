@@ -856,7 +856,7 @@ img { display: block; max-width: 100%; height: auto; }
   font-weight: 700;
   letter-spacing: 0.04em;
   color: var(--text-on-light);
-  opacity: 0.06;
+  opacity: 0.1;
   display: inline-block;
   text-transform: uppercase;
 }
@@ -1367,7 +1367,7 @@ img { display: block; max-width: 100%; height: auto; }
   font-size: 0.88rem;
   line-height: 1.6;
   color: var(--text-on-dark);
-  opacity: 0.7;
+  opacity: 0.85;
 }
 
 .footer-legal {
@@ -1385,7 +1385,7 @@ img { display: block; max-width: 100%; height: auto; }
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.18em;
-  color: rgba(242, 228, 207, 0.55);
+  color: rgba(242, 228, 207, 0.72);
   text-decoration: none;
   border-bottom: 1px solid rgba(200, 135, 58, 0.25);
   padding-bottom: 2px;
@@ -1412,7 +1412,7 @@ img { display: block; max-width: 100%; height: auto; }
 .footer-copy {
   font-size: 0.7rem;
   color: var(--text-on-dark);
-  opacity: 0.3;
+  opacity: 0.52;
   letter-spacing: 0.05em;
 }
 
@@ -1594,11 +1594,11 @@ img { display: block; max-width: 100%; height: auto; }
 }
 
 .legal-footer .footer-legal a {
-  color: rgba(242, 228, 207, 0.55);
+  color: rgba(242, 228, 207, 0.72);
 }
 
 .legal-footer .footer-copy {
-  opacity: 0.35;
+  opacity: 0.52;
 }
 
 /* ===== FLOATING ACTION BUTTONS ===== */

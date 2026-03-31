@@ -16,6 +16,8 @@
   <meta name="geo.placename" content="Berlin-Niederschöneweide">
 
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preload" href="public/fonts/cinzel-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="public/fonts/dmsans-latin.woff2" as="font" type="font/woff2" crossorigin>
 
   <meta property="og:url" content="https://restaurant-artemis-berlin.de/">
   <meta property="og:site_name" content="Restaurant Artemis">
@@ -182,10 +184,10 @@
         </div>
         <div class="section-media" data-anim="slide-right" data-delay="0.1">
           <div class="gallery-fan">
-            <img src="public/images/shrimp.webp" alt="Gegrillte Garnelen-Spieße im griechischen Restaurant Artemis Berlin" loading="lazy" width="800" height="600">
-            <img src="public/images/steak-plate.webp" alt="Steak vom Holzkohlegrill mit gegrilltem Gemüse" loading="lazy" width="821" height="600">
-            <img src="public/images/steak-cut.webp" alt="Saftiges Steak – griechische Grillspezialität" loading="lazy" width="1000" height="487">
-            <img src="public/images/tzatziki.webp" alt="Hausgemachter Tzatziki – griechische Vorspeise" loading="lazy" width="750" height="562">
+            <img src="public/images/shrimp.webp" srcset="public/images/shrimp-560.webp 560w, public/images/shrimp.webp 800w" sizes="(max-width: 480px) 90vw, (max-width: 1024px) 45vw, 360px" alt="Gegrillte Garnelen-Spieße im griechischen Restaurant Artemis Berlin" loading="lazy" width="800" height="600">
+            <img src="public/images/steak-plate.webp" srcset="public/images/steak-plate-560.webp 560w, public/images/steak-plate.webp 821w" sizes="(max-width: 480px) 90vw, (max-width: 1024px) 45vw, 360px" alt="Steak vom Holzkohlegrill mit gegrilltem Gemüse" loading="lazy" width="821" height="600">
+            <img src="public/images/steak-cut.webp" srcset="public/images/steak-cut-640.webp 640w, public/images/steak-cut.webp 1000w" sizes="(max-width: 480px) 90vw, (max-width: 1024px) 45vw, 400px" alt="Saftiges Steak – griechische Grillspezialität" loading="lazy" width="1000" height="487">
+            <img src="public/images/tzatziki.webp" srcset="public/images/tzatziki-520.webp 520w, public/images/tzatziki.webp 750w" sizes="(max-width: 480px) 90vw, (max-width: 1024px) 45vw, 360px" alt="Hausgemachter Tzatziki – griechische Vorspeise" loading="lazy" width="750" height="562">
           </div>
         </div>
       </div>
@@ -194,7 +196,7 @@
     <!-- TERRASSE — Full-Width Immersive -->
     <section class="section-terrasse" id="terrasse">
       <div class="terrasse-image-wrap" data-anim="clip-reveal">
-        <img src="public/images/terasse.webp" alt="Sommerterrasse Restaurant Artemis direkt an der Spree in Berlin-Schöneweide" class="terrasse-image" loading="lazy" width="2240" height="1250">
+        <img src="public/images/terasse.webp" srcset="public/images/terasse-960.webp 960w, public/images/terasse-1600.webp 1600w, public/images/terasse.webp 2240w" sizes="100vw" alt="Sommerterrasse Restaurant Artemis direkt an der Spree in Berlin-Schöneweide" class="terrasse-image" loading="lazy" width="2240" height="1250">
       </div>
       <div class="terrasse-overlay">
         <div class="terrasse-text" data-anim="fade-up">
