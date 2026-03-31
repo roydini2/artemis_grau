@@ -6,4 +6,16 @@
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
+  <url>
+    <loc>https://restaurant-artemis-berlin.de/impressum.html</loc>
+    <lastmod>2026-03-31</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://restaurant-artemis-berlin.de/datenschutz.html</loc>
+    <lastmod>2026-03-31</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
 </urlset>
