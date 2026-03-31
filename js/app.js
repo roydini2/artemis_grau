@@ -1,3 +1,6 @@
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+window.scrollTo(0, 0);
+
 // ===== CONFIGURATION =====
 const FOOD_FRAME_COUNT = 50;
 const STATUE_FRAME_COUNT = 63;
@@ -23,7 +26,6 @@ const ctxStatue = canvasStatue.getContext('2d');
 
 const canvasWrapFood = document.getElementById('canvas-wrap');
 const canvasWrapStatue = document.getElementById('canvas-wrap-statue');
-const darkOverlay = document.getElementById('dark-overlay');
 const header = document.getElementById('site-header');
 const menuToggle = document.getElementById('menu-toggle');
 const mobileNav = document.getElementById('mobile-nav');
@@ -120,7 +122,7 @@ function drawFrame(ctx, frames, index, bgColor, opts) {
   ctx.drawImage(img, dx, dy, dw, dh);
 }
 
-function loadFrameSet(count, pathTemplate) {
+function loadFrameSet(count, pathTemplate, onProgress) {
   return new Promise((resolve) => {
     const frames = new Array(count);
     let loaded = 0;
@@ -129,14 +131,51 @@ function loadFrameSet(count, pathTemplate) {
       img.onload = () => {
         frames[i] = img;
         loaded++;
+        if (onProgress) onProgress(loaded);
         if (loaded === count) resolve(frames);
       };
       img.onerror = () => {
         loaded++;
+        if (onProgress) onProgress(loaded);
         if (loaded === count) resolve(frames);
       };
       img.src = pathTemplate.replace('NNNN', String(i + 1).padStart(4, '0'));
     }
+  });
+}
+
+// ===== PRELOADER =====
+function initPreloader() {
+  const preloader = document.getElementById('preloader');
+  const bar = document.getElementById('preloader-bar');
+  const percent = document.getElementById('preloader-percent');
+  const totalFrames = FOOD_FRAME_COUNT + STATUE_FRAME_COUNT;
+  let loadedCount = 0;
+
+  function updateProgress(loaded) {
+    loadedCount = loaded;
+    const pct = Math.round((loadedCount / totalFrames) * 100);
+    bar.style.width = pct + '%';
+    percent.textContent = pct;
+  }
+
+  return new Promise(async (resolve) => {
+    const [loadedFood, loadedStatue] = await Promise.all([
+      loadFrameSet(FOOD_FRAME_COUNT, 'frames/frame_NNNN.webp', (n) => updateProgress(n)),
+      loadFrameSet(STATUE_FRAME_COUNT, 'frames-statue/frame_NNNN.webp', (n) => updateProgress(FOOD_FRAME_COUNT + n))
+    ]);
+
+    bar.style.width = '100%';
+    percent.textContent = '100';
+
+    await new Promise(r => setTimeout(r, 400));
+
+    preloader.classList.add('done');
+
+    await new Promise(r => setTimeout(r, 800));
+    preloader.style.display = 'none';
+
+    resolve({ loadedFood, loadedStatue });
   });
 }
 
@@ -147,21 +186,49 @@ function initHeader() {
   }, { passive: true });
 }
 
-// ===== HERO ANIMATION =====
+// ===== HERO ANIMATION — Letter Reveal =====
 function initHeroAnimation() {
   const label = document.querySelector('.hero-content .label--hero');
-  const heading = document.querySelector('.hero-heading');
+  const letters = document.querySelectorAll('.hero-letter');
   const tagline = document.querySelector('.hero-tagline');
   const cta = document.querySelector('.hero-cta');
-  const indicator = document.querySelector('.scroll-indicator');
+  const note = document.querySelector('.hero-reservation-note');
+  const indicator = document.getElementById('scroll-indicator');
 
-  const tl = gsap.timeline({ delay: 0.3 });
+  const heroContent = document.querySelector('.hero-content');
+  heroContent.style.visibility = 'visible';
 
-  tl.from(label, { y: 20, opacity: 0, duration: 0.7, ease: 'power3.out' })
-    .from(heading, { y: 50, opacity: 0, duration: 1.1, ease: 'power3.out' }, '-=0.3')
-    .from(tagline, { y: 20, opacity: 0, duration: 0.7, ease: 'power3.out' }, '-=0.4')
-    .from(cta, { y: 20, opacity: 0, duration: 0.6, ease: 'power3.out' }, '-=0.3')
-    .from(indicator, { y: 15, opacity: 0, duration: 0.5, ease: 'power3.out' }, '-=0.2');
+  const tl = gsap.timeline({ delay: 0.15 });
+
+  tl.from(label, { y: 10, opacity: 0, duration: 0.4, ease: 'power3.out' })
+    .from(letters, {
+      y: 40,
+      opacity: 0,
+      stagger: 0.035,
+      duration: 0.5,
+      ease: 'power4.out'
+    }, '-=0.15')
+    .from(tagline, { y: 10, opacity: 0, duration: 0.4, ease: 'power3.out' }, '-=0.15')
+    .from(cta, { y: 10, opacity: 0, duration: 0.35, ease: 'power3.out' }, '-=0.15')
+    .from(note, { opacity: 0, duration: 0.3, ease: 'power2.out' }, '-=0.1')
+    .from(indicator, { opacity: 0, duration: 0.3, ease: 'power2.out' }, '-=0.1');
+}
+
+// ===== HERO PARALLAX =====
+function initHeroParallax() {
+  const heroContent = document.querySelector('.hero-content');
+  ScrollTrigger.create({
+    trigger: '.hero',
+    start: 'top top',
+    end: 'bottom top',
+    scrub: true,
+    onUpdate: (self) => {
+      const yShift = self.progress * 80;
+      const fade = 1 - self.progress * 1.5;
+      heroContent.style.transform = `translateY(${-yShift}px)`;
+      heroContent.style.opacity = Math.max(0, fade);
+    }
+  });
 }
 
 // ===== FOOD CANVAS SCROLL =====
@@ -169,10 +236,8 @@ function initFoodCanvasScroll() {
   const hero = document.getElementById('hero');
   const zone = document.getElementById('kueche');
 
-  // Food canvas is visible from hero start, fades in during hero
   canvasWrapFood.style.opacity = '1';
 
-  // Scroll-driven frame playback across hero + food zone
   ScrollTrigger.create({
     trigger: hero,
     start: 'top top',
@@ -189,7 +254,6 @@ function initFoodCanvasScroll() {
     }
   });
 
-  // Fade food canvas out when leaving food zone into speisekarte
   const speisekarte = document.getElementById('speisekarte');
   ScrollTrigger.create({
     trigger: speisekarte,
@@ -210,7 +274,7 @@ function initMapConsent() {
   if (!btn || !consent || !iframe) return;
 
   btn.addEventListener('click', () => {
-    iframe.src = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2430.5!2d13.5123!3d52.4567!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sRestaurant+Artemis+Schnellerstr.+97+12439+Berlin!5e0!3m2!1sde!2sde!4v1';
+    iframe.src = 'https://www.google.com/maps?q=Restaurant+Artemis+Schnellerstra%C3%9Fe+97+12439+Berlin&output=embed';
     consent.classList.add('hidden');
   });
 }
@@ -255,7 +319,7 @@ function initStatueCanvasScroll() {
   });
 }
 
-// ===== SECTION REVEAL ANIMATIONS =====
+// ===== SECTION REVEAL ANIMATIONS — Varied per data-anim =====
 function initRevealAnimations() {
   document.querySelectorAll('[data-anim]').forEach(el => {
     const type = el.dataset.anim;
@@ -275,19 +339,75 @@ function initRevealAnimations() {
           toggleActions: 'play none none none'
         }
       });
-    } else {
-      gsap.from(el, {
-        y: 50,
-        opacity: 0,
-        duration: 0.9,
-        ease: 'power3.out',
-        delay,
-        scrollTrigger: {
-          trigger: el,
-          start: 'top 85%',
-          toggleActions: 'play none none none'
-        }
-      });
+      return;
+    }
+
+    const animProps = { opacity: 0, duration: 0.9, ease: 'power3.out', delay };
+
+    switch (type) {
+      case 'fade-up':
+        animProps.y = 50;
+        break;
+      case 'slide-left':
+        animProps.x = -60;
+        animProps.y = 20;
+        break;
+      case 'slide-right':
+        animProps.x = 60;
+        animProps.y = 20;
+        break;
+      case 'scale-up':
+        animProps.scale = 0.92;
+        animProps.y = 30;
+        animProps.duration = 1.0;
+        animProps.ease = 'power2.out';
+        break;
+      case 'clip-reveal':
+        animProps.clipPath = 'inset(8% 8% 8% 8%)';
+        animProps.duration = 1.2;
+        animProps.ease = 'power4.inOut';
+        delete animProps.opacity;
+        break;
+      default:
+        animProps.y = 50;
+    }
+
+    animProps.scrollTrigger = {
+      trigger: el,
+      start: 'top 85%',
+      toggleActions: 'play none none none'
+    };
+
+    gsap.from(el, animProps);
+  });
+}
+
+// ===== TERRASSE KEN BURNS =====
+function initKenBurns() {
+  const wrap = document.querySelector('.terrasse-image-wrap');
+  if (!wrap) return;
+
+  ScrollTrigger.create({
+    trigger: wrap,
+    start: 'top 80%',
+    onEnter: () => wrap.classList.add('ken-burns'),
+    once: true
+  });
+}
+
+// ===== MARQUEE SCROLL =====
+function initMarquee() {
+  const track = document.getElementById('marquee-track');
+  if (!track) return;
+
+  gsap.to(track, {
+    xPercent: -33.33,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: track.parentElement,
+      start: 'top bottom',
+      end: 'bottom top',
+      scrub: true
     }
   });
 }
@@ -305,7 +425,7 @@ function initCounters() {
       onEnter: () => {
         gsap.to(obj, {
           val: target,
-          duration: 2,
+          duration: 0.8,
           ease: 'power1.out',
           onUpdate: () => {
             el.textContent = decimals > 0
@@ -316,6 +436,20 @@ function initCounters() {
       },
       once: true
     });
+  });
+}
+
+// ===== FLOATING BACK-TO-TOP =====
+function initBackToTop() {
+  const btn = document.getElementById('fab-top');
+  if (!btn) return;
+
+  window.addEventListener('scroll', () => {
+    btn.classList.toggle('visible', window.scrollY > 400);
+  }, { passive: true });
+
+  btn.addEventListener('click', () => {
+    lenis.scrollTo(0, { duration: 1.5 });
   });
 }
 
@@ -338,15 +472,11 @@ function onResize() {
 async function init() {
   initHeader();
   initInPageAnchors();
-  initHeroAnimation();
 
   setupCanvas(canvasFood, ctxFood);
   setupCanvas(canvasStatue, ctxStatue);
 
-  const [loadedFood, loadedStatue] = await Promise.all([
-    loadFrameSet(FOOD_FRAME_COUNT, 'frames/frame_NNNN.webp'),
-    loadFrameSet(STATUE_FRAME_COUNT, 'frames-statue/frame_NNNN.webp')
-  ]);
+  const { loadedFood, loadedStatue } = await initPreloader();
 
   loadedFood.forEach((f, i) => { if (f) foodFrames[i] = f; });
   loadedStatue.forEach((f, i) => { if (f) statueFrames[i] = f; });
@@ -354,11 +484,16 @@ async function init() {
   if (foodFrames[0]) drawFrame(ctxFood, foodFrames, 0, '#F2E4CF', FOOD_DRAW_OPTS);
   if (statueFrames[0]) drawFrame(ctxStatue, statueFrames, 0, '#E8D5B8', STATUE_DRAW_OPTS);
 
+  initHeroAnimation();
+  initHeroParallax();
   initFoodCanvasScroll();
   initStatueCanvasScroll();
   initMapConsent();
   initRevealAnimations();
+  initKenBurns();
+  initMarquee();
   initCounters();
+  initBackToTop();
 
   window.addEventListener('resize', onResize);
 }

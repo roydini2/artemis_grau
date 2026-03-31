@@ -96,8 +96,23 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="css/style.css">
+  <script>if('scrollRestoration' in history)history.scrollRestoration='manual';window.scrollTo(0,0);</script>
 </head>
 <body>
+
+  <!-- PRELOADER -->
+  <div class="preloader" id="preloader">
+    <div class="preloader-inner">
+      <span class="preloader-brand">ARTEMIS</span>
+      <div class="preloader-bar-track">
+        <div class="preloader-bar-fill" id="preloader-bar"></div>
+      </div>
+      <span class="preloader-percent" id="preloader-percent">0</span>
+    </div>
+  </div>
+
+  <!-- GRAIN OVERLAY -->
+  <div class="grain-overlay" aria-hidden="true"></div>
 
   <header class="site-header" id="site-header">
     <nav class="header-nav">
@@ -141,14 +156,14 @@
     <section class="hero" id="hero">
       <div class="hero-content">
         <span class="label label--hero">Griechische Küche in Berlin</span>
-        <h1 class="hero-heading"><span class="hero-heading-core">ARTE</span><span class="hero-heading-tail">MIS</span></h1>
+        <h1 class="hero-heading" aria-label="ARTEMIS"><span class="hero-letter">A</span><span class="hero-letter">R</span><span class="hero-letter">T</span><span class="hero-letter">E</span><span class="hero-letter">M</span><span class="hero-letter">I</span><span class="hero-letter">S</span></h1>
         <p class="hero-tagline">Direkt an der Spree seit 1997</p>
         <a href="#reservierung-telefon" class="hero-cta">Tisch reservieren</a>
         <p class="hero-reservation-note">Nur telefonische Reservierungen</p>
       </div>
-      <div class="scroll-indicator">
+      <div class="scroll-indicator" id="scroll-indicator">
+        <div class="scroll-indicator-line"></div>
         <span>Entdecken</span>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
       </div>
     </section>
 
@@ -168,7 +183,7 @@
     <!-- SPEISEKARTE (directly after food video) -->
     <section class="section" id="speisekarte">
       <div class="section-split">
-        <div class="section-text" data-anim="fade-up">
+        <div class="section-text" data-anim="slide-left">
           <span class="label">Unsere Vielfalt</span>
           <h2 class="heading">Mehr als 80 Gerichte</h2>
           <p class="body-text">
@@ -192,7 +207,7 @@
             </a>
           </div>
         </div>
-        <div class="section-media" data-anim="fade-up" data-delay="0.15">
+        <div class="section-media" data-anim="slide-right" data-delay="0.1">
           <div class="gallery-fan">
             <img src="public/images/shrimp.webp" alt="Gegrillte Garnelen-Spieße im griechischen Restaurant Artemis Berlin" loading="lazy" width="800" height="600">
             <img src="public/images/steak-plate.webp" alt="Steak vom Holzkohlegrill mit gegrilltem Gemüse" loading="lazy" width="821" height="600">
@@ -203,28 +218,35 @@
       </div>
     </section>
 
-    <!-- TERRASSE -->
-    <section class="section section-warm" id="terrasse">
-      <div class="section-split">
-        <div class="section-text" data-anim="fade-up">
-          <span class="label">Terrasse</span>
-          <h2 class="heading">Direkt an der Spree</h2>
-          <p class="body-text">
+    <!-- TERRASSE — Full-Width Immersive -->
+    <section class="section-terrasse" id="terrasse">
+      <div class="terrasse-image-wrap" data-anim="clip-reveal">
+        <img src="public/images/terasse.webp" alt="Sommerterrasse Restaurant Artemis direkt an der Spree in Berlin-Schöneweide" class="terrasse-image" loading="lazy" width="2240" height="1250">
+      </div>
+      <div class="terrasse-overlay">
+        <div class="terrasse-text" data-anim="fade-up">
+          <span class="label label--gold">Terrasse</span>
+          <h2 class="heading heading--light">Direkt an der Spree</h2>
+          <p class="body-text body-text--on-dark">
             Im Frühling, Sommer und Herbst erwartet Sie unsere Außenterrasse
             mit Blick auf den vorbeiziehenden Schiffsverkehr. Genießen Sie
             griechische Küche unter freiem Himmel — ein Stück Griechenland
             mitten in Berlin-Niederschöneweide.
           </p>
         </div>
-        <div class="section-media" data-anim="fade-up" data-delay="0.15">
-          <img src="public/images/terasse.webp" alt="Sommerterrasse Restaurant Artemis direkt an der Spree in Berlin-Schöneweide" class="section-image" loading="lazy" width="2240" height="1250">
-        </div>
       </div>
     </section>
 
+    <!-- MARQUEE -->
+    <div class="marquee-section" aria-hidden="true">
+      <div class="marquee-track" id="marquee-track">
+        <span class="marquee-text">Holzkohlegrill&nbsp;&nbsp;&mdash;&nbsp;&nbsp;Terrasse an der Spree&nbsp;&nbsp;&mdash;&nbsp;&nbsp;Seit 1997&nbsp;&nbsp;&mdash;&nbsp;&nbsp;Griechische Küche&nbsp;&nbsp;&mdash;&nbsp;&nbsp;</span><span class="marquee-text">Holzkohlegrill&nbsp;&nbsp;&mdash;&nbsp;&nbsp;Terrasse an der Spree&nbsp;&nbsp;&mdash;&nbsp;&nbsp;Seit 1997&nbsp;&nbsp;&mdash;&nbsp;&nbsp;Griechische Küche&nbsp;&nbsp;&mdash;&nbsp;&nbsp;</span><span class="marquee-text">Holzkohlegrill&nbsp;&nbsp;&mdash;&nbsp;&nbsp;Terrasse an der Spree&nbsp;&nbsp;&mdash;&nbsp;&nbsp;Seit 1997&nbsp;&nbsp;&mdash;&nbsp;&nbsp;Griechische Küche&nbsp;&nbsp;&mdash;&nbsp;&nbsp;</span>
+      </div>
+    </div>
+
     <!-- YAMAS -->
     <section class="section section-welcome" id="willkommen">
-      <div class="welcome-content" data-anim="fade-up">
+      <div class="welcome-content" data-anim="scale-up">
         <span class="label">Yamas — Auf Ihr Wohl</span>
         <h2 class="heading">Wir freuen uns, Sie begrüßen zu dürfen</h2>
         <p class="body-text body-text--wide">
@@ -252,6 +274,10 @@
 
     <!-- BEWERTUNGEN (mit Stats) -->
     <section class="section section-reviews" id="bewertungen">
+      <div class="reviews-header" data-anim="fade-up">
+        <span class="label label--gold">Stimmen unserer Gäste</span>
+        <h2 class="heading heading--light">Was unsere Gäste sagen</h2>
+      </div>
       <div class="reviews-stats" data-anim="stagger-up">
         <div class="stat">
           <span class="stat-number" data-value="4.7" data-decimals="1">0</span>
@@ -275,7 +301,8 @@
         </div>
       </div>
       <div class="reviews-grid" data-anim="stagger-up">
-        <blockquote class="review-card">
+        <blockquote class="review-card review-card--featured">
+          <span class="review-quote" aria-hidden="true">&bdquo;</span>
           <div class="review-stars" aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
           <p class="review-text">„Bestes griechisches Restaurant in Berlin! Die Lammkoteletts vom Grill sind unglaublich und die Terrasse an der Spree ist im Sommer ein Traum."</p>
           <footer class="review-author">
@@ -284,6 +311,7 @@
           </footer>
         </blockquote>
         <blockquote class="review-card">
+          <span class="review-quote" aria-hidden="true">&bdquo;</span>
           <div class="review-stars" aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
           <p class="review-text">„Seit Jahren unser Lieblingsgrieche. Frische Zutaten, riesige Portionen und das freundlichste Personal in ganz Schöneweide. Immer wieder gerne!"</p>
           <footer class="review-author">
@@ -292,6 +320,7 @@
           </footer>
         </blockquote>
         <blockquote class="review-card">
+          <span class="review-quote" aria-hidden="true">&bdquo;</span>
           <div class="review-stars" aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
           <p class="review-text">„Unvergesslicher Abend auf der Terrasse direkt an der Spree. Das Essen war hervorragend, besonders die Meeresfrüchte-Platte. Absolute Empfehlung!"</p>
           <footer class="review-author">
@@ -320,7 +349,7 @@
     <!-- FEIERN -->
     <section class="section section-sand" id="feiern">
       <div class="section-split">
-        <div class="section-text" data-anim="fade-up">
+        <div class="section-text" data-anim="slide-right">
           <span class="label">Ihre Feier</span>
           <h2 class="heading">Feiern Sie bei uns</h2>
           <p class="body-text">
@@ -348,7 +377,7 @@
           </p>
           <a href="#reservierung-telefon" class="cta-button">Jetzt anrufen</a>
         </div>
-        <div class="section-media" data-anim="fade-up" data-delay="0.15">
+        <div class="section-media" data-anim="slide-left" data-delay="0.1">
           <div class="gallery-fan">
             <img src="public/images/feier/feier-1.webp" alt="Griechisches Buffet für Veranstaltungen" loading="lazy" width="278" height="208">
             <img src="public/images/feier/feier-2.webp" alt="Festliche Buffet-Auswahl im Restaurant Artemis" loading="lazy" width="278" height="208">
@@ -396,10 +425,38 @@
     </section>
 
     <footer class="site-footer">
-      <p>&copy; Restaurant Artemis &middot; Schnellerstr. 97, 12439 Berlin &middot; Griechisches Restaurant in Berlin-Schöneweide</p>
+      <div class="footer-inner">
+        <span class="footer-logo">ARTEMIS</span>
+        <div class="footer-divider"></div>
+        <div class="footer-info">
+          <div class="footer-col">
+            <span class="footer-label">Adresse</span>
+            <p>Schnellerstr. 97<br>12439 Berlin</p>
+          </div>
+          <div class="footer-col">
+            <span class="footer-label">Reservierung</span>
+            <p>030 67822870</p>
+          </div>
+          <div class="footer-col">
+            <span class="footer-label">Öffnungszeiten</span>
+            <p>Di.&ndash;So. 12&ndash;23 Uhr<br>Mo. Ruhetag</p>
+          </div>
+        </div>
+        <p class="footer-copy">&copy; Restaurant Artemis &middot; Griechisches Restaurant in Berlin-Schöneweide</p>
+      </div>
     </footer>
 
   </main>
+
+  <!-- FLOATING ACTION BUTTONS -->
+  <div class="fab-container" id="fab-container">
+    <button class="fab fab--top" id="fab-top" aria-label="Nach oben scrollen">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+    </button>
+    <a href="tel:+493067822870" class="fab fab--call" aria-label="Jetzt anrufen">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+    </a>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
