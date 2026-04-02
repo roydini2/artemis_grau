@@ -24,6 +24,14 @@ lenis.on('scroll', ScrollTrigger.update);
 gsap.ticker.add((time) => lenis.raf(time * 1000));
 gsap.ticker.lagSmoothing(0);
 
+/** Touch + ScrollTrigger-Scrub: zu hoher Multiplier erzeugt mit Lenis sichtbares „Wackeln“. */
+const lenisTouchCoarseMq = window.matchMedia('(max-width: 768px) and (pointer: coarse)');
+function syncLenisTouchMultiplier() {
+  lenis.options.touchMultiplier = lenisTouchCoarseMq.matches ? 1 : 1.5;
+}
+syncLenisTouchMultiplier();
+lenisTouchCoarseMq.addEventListener('change', syncLenisTouchMultiplier);
+
 function getInPageAnchorOffset() {
   return 0;
 }
@@ -292,7 +300,7 @@ function initScrollChrome() {
   tick();
 }
 
-// ===== HERO PARALLAX — normal scroll; Bild-Ebene fixed; nur #hero-video-media bewegt sich langsamer (wie vorher beim Video) =====
+// ===== HERO PARALLAX — fixed plane; #hero-video-media scrollt langsamer (auch mobil). Text stabil über CSS (.hero-content, svh). =====
 function initHeroParallax() {
   const hero = document.querySelector('.hero');
   const media = document.getElementById('hero-video-media');
@@ -300,8 +308,6 @@ function initHeroParallax() {
   if (!hero || !media) return;
 
   const statuePlane = document.getElementById('footer-statue-video-wrap');
-  const heroParallaxMq = window.matchMedia('(max-width: 768px)');
-  let parallaxTween = null;
 
   const hideVideoPlane = () => {
     if (plane) plane.style.visibility = 'hidden';
@@ -314,36 +320,21 @@ function initHeroParallax() {
     if (statuePlane) statuePlane.style.zIndex = '1';
   };
 
-  const applyHeroParallax = () => {
-    if (parallaxTween) {
-      parallaxTween.scrollTrigger?.kill();
-      parallaxTween.kill();
-      parallaxTween = null;
-    }
-    gsap.set(media, { clearProps: 'transform' });
-    if (heroParallaxMq.matches) return;
-    parallaxTween = gsap.fromTo(
-      media,
-      { y: 0 },
-      {
-        y: () => -window.innerHeight * 0.22,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: hero,
-          start: 'top top',
-          end: 'bottom top',
-          scrub: 0.45,
-          invalidateOnRefresh: true
-        }
+  gsap.fromTo(
+    media,
+    { y: 0 },
+    {
+      y: () => -window.innerHeight * 0.22,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: hero,
+        start: 'top top',
+        end: 'bottom top',
+        scrub: 0.45,
+        invalidateOnRefresh: true
       }
-    );
-  };
-
-  applyHeroParallax();
-  heroParallaxMq.addEventListener('change', () => {
-    applyHeroParallax();
-    ScrollTrigger.refresh();
-  });
+    }
+  );
 
   ScrollTrigger.create({
     trigger: hero,
@@ -796,63 +787,69 @@ function initRevealAnimations() {
 }
 
 // ===== EDITORIAL GALLERY PAIR PARALLAX =====
-/** Ganze Bild-Spalten (figure) verschieben — nicht der Bild-Inhalt. Editorial Desktop: Drift A. Editorial ≤768px: unteres Bild wandert beim Runterscrollen leicht nach unten. */
+/** Nur Desktop: Scrub + Lenis-Touch erzeugt unterhalb des Cinematic-Bereichs sichtbares Wackeln. */
 function initGalleryPairParallax() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  document.querySelectorAll('[data-parallax-pair]').forEach((root) => {
-    const colA = root.querySelector('.gallery-pair__col--a');
-    const colB = root.querySelector('.gallery-pair__col--b');
-    const colC = root.querySelector('.gallery-pair__col--c');
-    if (!colA || !colB) return;
+  ScrollTrigger.matchMedia({
+    '(min-width: 769px)': function setupGalleryParallaxDesktop() {
+      const cleanups = [];
 
-    const st = {
-      trigger: root,
-      start: 'top bottom',
-      end: 'bottom top',
-      scrub: true,
-      invalidateOnRefresh: true
-    };
+      document.querySelectorAll('[data-parallax-pair]').forEach((root) => {
+        const colA = root.querySelector('.gallery-pair__col--a');
+        const colB = root.querySelector('.gallery-pair__col--b');
+        const colC = root.querySelector('.gallery-pair__col--c');
+        if (!colA || !colB) return;
+        if (root.classList.contains('gallery-pair--feier-trio') && !colC) return;
 
-    const tl = gsap.timeline({ scrollTrigger: st });
+        const st = {
+          trigger: root,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: true,
+          invalidateOnRefresh: true
+        };
 
-    if (root.classList.contains('gallery-pair--editorial')) {
-      const isEditorialMobile = window.matchMedia('(max-width: 768px)').matches;
-      if (isEditorialMobile) {
-        const bAmp = 32;
-        tl.fromTo(
-          colB,
-          { y: -bAmp, force3D: true },
-          { y: bAmp, ease: 'none', duration: 1, force3D: true },
-          0
-        );
-      } else {
-        const bH = colB.offsetHeight || 500;
-        const aH = colA.offsetHeight || 400;
-        const drift = Math.max(0, bH - aH);
-        tl.fromTo(colA, { y: 0, force3D: true }, { y: drift, ease: 'none', duration: 1, force3D: true }, 0);
-      }
-    } else if (root.classList.contains('gallery-pair--feier-trio')) {
-      if (!colC) return;
-      const feierM = window.matchMedia('(max-width: 768px)').matches ? 0.5 : 1;
-      tl.fromTo(
-        colA,
-        { y: 36 * feierM, force3D: true },
-        { y: -30 * feierM, ease: 'none', duration: 1, force3D: true },
-        0
-      ).fromTo(
-        colC,
-        { y: -38 * feierM, force3D: true },
-        { y: 28 * feierM, ease: 'none', duration: 1, force3D: true },
-        0
-      );
-    } else {
-      tl.fromTo(colA, { y: 40, force3D: true }, { y: -32, ease: 'none', duration: 1, force3D: true }, 0).fromTo(
-        colB,
-        { y: -44, force3D: true },
-        { y: 28, ease: 'none', duration: 1, force3D: true },
-        0
-      );
+        const tl = gsap.timeline({ scrollTrigger: st });
+
+        if (root.classList.contains('gallery-pair--editorial')) {
+          const bH = colB.offsetHeight || 500;
+          const aH = colA.offsetHeight || 400;
+          const drift = Math.max(0, bH - aH);
+          tl.fromTo(colA, { y: 0, force3D: true }, { y: drift, ease: 'none', duration: 1, force3D: true }, 0);
+        } else if (root.classList.contains('gallery-pair--feier-trio')) {
+          tl.fromTo(
+            colA,
+            { y: 36, force3D: true },
+            { y: -30, ease: 'none', duration: 1, force3D: true },
+            0
+          ).fromTo(
+            colC,
+            { y: -38, force3D: true },
+            { y: 28, ease: 'none', duration: 1, force3D: true },
+            0
+          );
+        } else {
+          tl.fromTo(colA, { y: 40, force3D: true }, { y: -32, ease: 'none', duration: 1, force3D: true }, 0).fromTo(
+            colB,
+            { y: -44, force3D: true },
+            { y: 28, ease: 'none', duration: 1, force3D: true },
+            0
+          );
+        }
+
+        cleanups.push(() => {
+          tl.scrollTrigger?.kill();
+          tl.kill();
+        });
+      });
+
+      return function cleanupGalleryParallaxDesktop() {
+        cleanups.forEach((fn) => fn());
+        document.querySelectorAll('[data-parallax-pair] .gallery-pair__col--a, [data-parallax-pair] .gallery-pair__col--b, [data-parallax-pair] .gallery-pair__col--c').forEach((el) => {
+          gsap.set(el, { clearProps: 'transform' });
+        });
+      };
     }
   });
 }

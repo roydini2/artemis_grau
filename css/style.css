@@ -1891,7 +1891,7 @@ body.is-intro-active .grain-overlay {
     padding-bottom: calc(var(--dock-safe-bottom) + 0.85rem);
     box-sizing: border-box;
     min-height: 100vh;
-    min-height: 100dvh;
+    min-height: 100svh;
     overflow: visible;
   }
 
@@ -1958,7 +1958,7 @@ body.is-intro-active .grain-overlay {
 
   .cinematic-stage {
     width: min(92vw, calc(100% - 1.5rem));
-    height: min(56dvh, 62vh);
+    height: min(56svh, 62vh);
     max-height: 520px;
     will-change: auto;
   }
