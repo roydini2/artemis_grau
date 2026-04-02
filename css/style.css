@@ -628,8 +628,11 @@ body.is-intro-active .grain-overlay {
 }
 
 @media (max-width: 768px) {
+  /* Wie .hero-video-plane: Layout-Viewport < sichtbare Fläche beim Wegscrollen der UI-Leiste */
   .footer-statue-video-plane {
     transform: translateZ(0);
+    min-height: 100dvh;
+    min-height: 100lvh;
   }
 
   .footer-statue-canvas-el {
