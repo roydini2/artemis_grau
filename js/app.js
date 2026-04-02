@@ -300,7 +300,7 @@ function initScrollChrome() {
   tick();
 }
 
-// ===== HERO PARALLAX — fixed plane; #hero-video-media scrollt langsamer (auch mobil). Text stabil über CSS (.hero-content, svh). =====
+// ===== HERO PARALLAX — fixed plane; #hero-video-media langsamer (Desktop scrub 0.45; Mobil scrub true + y auf Pixel gerundet). =====
 function initHeroParallax() {
   const hero = document.querySelector('.hero');
   const media = document.getElementById('hero-video-media');
@@ -320,21 +320,27 @@ function initHeroParallax() {
     if (statuePlane) statuePlane.style.zIndex = '1';
   };
 
-  gsap.fromTo(
-    media,
-    { y: 0 },
-    {
-      y: () => -window.innerHeight * 0.22,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: hero,
-        start: 'top top',
-        end: 'bottom top',
-        scrub: 0.45,
-        invalidateOnRefresh: true
-      }
+  const heroParallaxMobile = window.matchMedia('(max-width: 768px)').matches;
+  const parallaxEnd = {
+    y: () => -window.innerHeight * 0.22,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: hero,
+      start: 'top top',
+      end: 'bottom top',
+      scrub: heroParallaxMobile ? true : 0.45,
+      invalidateOnRefresh: true
     }
-  );
+  };
+  if (heroParallaxMobile) {
+    parallaxEnd.modifiers = {
+      y: (y) => {
+        const n = parseFloat(y);
+        return `${Math.round(Number.isFinite(n) ? n : 0)}px`;
+      }
+    };
+  }
+  gsap.fromTo(media, { y: 0 }, parallaxEnd);
 
   ScrollTrigger.create({
     trigger: hero,
@@ -479,9 +485,7 @@ function initFooterStatueFrameScroll() {
       canvas.width = first.naturalWidth;
       canvas.height = first.naturalHeight;
 
-      const statueTouchMobile =
-        window.matchMedia('(max-width: 768px)').matches &&
-        window.matchMedia('(pointer: coarse)').matches;
+      const statueNarrowViewport = window.matchMedia('(max-width: 768px)').matches;
 
       const setWrapOpacityFromSt = (active) => {
         wrap.style.opacity = active ? '1' : '0';
@@ -495,8 +499,8 @@ function initFooterStatueFrameScroll() {
           trigger: zone,
           start: 'top bottom',
           end: 'bottom top',
-          scrub: statueTouchMobile ? true : 0.65,
-          invalidateOnRefresh: true,
+          scrub: statueNarrowViewport ? true : 0.65,
+          invalidateOnRefresh: !statueNarrowViewport,
           onToggle: (self) => {
             setWrapOpacityFromSt(self.isActive);
           },
@@ -787,69 +791,63 @@ function initRevealAnimations() {
 }
 
 // ===== EDITORIAL GALLERY PAIR PARALLAX =====
-/** Nur Desktop: Scrub + Lenis-Touch erzeugt unterhalb des Cinematic-Bereichs sichtbares Wackeln. */
+/** Ganze Bild-Spalten (figure) verschieben. Editorial: Desktop Drift auf A, Mobil Bewegung auf B. Feiern-Trio: Außen-Spalten, Mobil halbe Amplitude. */
 function initGalleryPairParallax() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  ScrollTrigger.matchMedia({
-    '(min-width: 769px)': function setupGalleryParallaxDesktop() {
-      const cleanups = [];
+  document.querySelectorAll('[data-parallax-pair]').forEach((root) => {
+    const colA = root.querySelector('.gallery-pair__col--a');
+    const colB = root.querySelector('.gallery-pair__col--b');
+    const colC = root.querySelector('.gallery-pair__col--c');
+    if (!colA || !colB) return;
+    if (root.classList.contains('gallery-pair--feier-trio') && !colC) return;
 
-      document.querySelectorAll('[data-parallax-pair]').forEach((root) => {
-        const colA = root.querySelector('.gallery-pair__col--a');
-        const colB = root.querySelector('.gallery-pair__col--b');
-        const colC = root.querySelector('.gallery-pair__col--c');
-        if (!colA || !colB) return;
-        if (root.classList.contains('gallery-pair--feier-trio') && !colC) return;
+    const st = {
+      trigger: root,
+      start: 'top bottom',
+      end: 'bottom top',
+      scrub: true,
+      invalidateOnRefresh: true
+    };
 
-        const st = {
-          trigger: root,
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: true,
-          invalidateOnRefresh: true
-        };
+    const tl = gsap.timeline({ scrollTrigger: st });
 
-        const tl = gsap.timeline({ scrollTrigger: st });
-
-        if (root.classList.contains('gallery-pair--editorial')) {
-          const bH = colB.offsetHeight || 500;
-          const aH = colA.offsetHeight || 400;
-          const drift = Math.max(0, bH - aH);
-          tl.fromTo(colA, { y: 0, force3D: true }, { y: drift, ease: 'none', duration: 1, force3D: true }, 0);
-        } else if (root.classList.contains('gallery-pair--feier-trio')) {
-          tl.fromTo(
-            colA,
-            { y: 36, force3D: true },
-            { y: -30, ease: 'none', duration: 1, force3D: true },
-            0
-          ).fromTo(
-            colC,
-            { y: -38, force3D: true },
-            { y: 28, ease: 'none', duration: 1, force3D: true },
-            0
-          );
-        } else {
-          tl.fromTo(colA, { y: 40, force3D: true }, { y: -32, ease: 'none', duration: 1, force3D: true }, 0).fromTo(
-            colB,
-            { y: -44, force3D: true },
-            { y: 28, ease: 'none', duration: 1, force3D: true },
-            0
-          );
-        }
-
-        cleanups.push(() => {
-          tl.scrollTrigger?.kill();
-          tl.kill();
-        });
-      });
-
-      return function cleanupGalleryParallaxDesktop() {
-        cleanups.forEach((fn) => fn());
-        document.querySelectorAll('[data-parallax-pair] .gallery-pair__col--a, [data-parallax-pair] .gallery-pair__col--b, [data-parallax-pair] .gallery-pair__col--c').forEach((el) => {
-          gsap.set(el, { clearProps: 'transform' });
-        });
-      };
+    if (root.classList.contains('gallery-pair--editorial')) {
+      const isEditorialMobile = window.matchMedia('(max-width: 768px)').matches;
+      if (isEditorialMobile) {
+        const bAmp = 32;
+        tl.fromTo(
+          colB,
+          { y: -bAmp, force3D: true },
+          { y: bAmp, ease: 'none', duration: 1, force3D: true },
+          0
+        );
+      } else {
+        const bH = colB.offsetHeight || 500;
+        const aH = colA.offsetHeight || 400;
+        const drift = Math.max(0, bH - aH);
+        tl.fromTo(colA, { y: 0, force3D: true }, { y: drift, ease: 'none', duration: 1, force3D: true }, 0);
+      }
+    } else if (root.classList.contains('gallery-pair--feier-trio')) {
+      const feierM = window.matchMedia('(max-width: 768px)').matches ? 0.5 : 1;
+      tl.fromTo(
+        colA,
+        { y: 36 * feierM, force3D: true },
+        { y: -30 * feierM, ease: 'none', duration: 1, force3D: true },
+        0
+      ).fromTo(
+        colC,
+        { y: -38 * feierM, force3D: true },
+        { y: 28 * feierM, ease: 'none', duration: 1, force3D: true },
+        0
+      );
+    } else {
+      tl.fromTo(colA, { y: 40, force3D: true }, { y: -32, ease: 'none', duration: 1, force3D: true }, 0).fromTo(
+        colB,
+        { y: -44, force3D: true },
+        { y: 28, ease: 'none', duration: 1, force3D: true },
+        0
+      );
     }
   });
 }
