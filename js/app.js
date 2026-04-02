@@ -228,6 +228,10 @@ function initMobileNavAutoOpenAtBottom() {
 
 let lastResizeWidth = document.documentElement.clientWidth;
 
+/** Hero-Parallax-Endpunkt: nicht jedes Frame von innerHeight abhängig (Mobile-Leiste ein/aus beim Loslassen → sonst Schlag). */
+let heroParallaxTravelPx =
+  (window.visualViewport?.height ?? window.innerHeight) * 0.22;
+
 function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
@@ -374,12 +378,15 @@ function initScrollChrome() {
   tick();
 }
 
-// ===== HERO PARALLAX — wie Footer-Statue: Plane 100svh; ≤768px scrub true, invalidateOnRefresh aus, y px-gerundet. =====
+// ===== HERO PARALLAX — Touch: kein scrub:true + keine px-Rundung; y-Amplitude aus Cache (s. heroParallaxTravelPx). =====
 function initHeroParallax() {
   const hero = document.querySelector('.hero');
   const media = document.getElementById('hero-video-media');
   const plane = document.getElementById('hero-video-plane');
   if (!hero || !media) return;
+
+  heroParallaxTravelPx =
+    (window.visualViewport?.height ?? window.innerHeight) * 0.22;
 
   const statuePlane = document.getElementById('footer-statue-video-wrap');
 
@@ -396,24 +403,17 @@ function initHeroParallax() {
 
   const heroParallaxMobile = window.matchMedia('(max-width: 768px)').matches;
   const parallaxEnd = {
-    y: () => -window.innerHeight * 0.22,
+    y: () => -heroParallaxTravelPx,
     ease: 'none',
     scrollTrigger: {
       trigger: hero,
       start: 'top top',
       end: 'bottom top',
-      scrub: heroParallaxMobile ? true : 0.45,
+      /* Mobil etwas weicher als Desktop: Touch liefert sprunghafte Deltas; numerisches scrub glättet ohne große Latenz. */
+      scrub: heroParallaxMobile ? 0.65 : 0.45,
       invalidateOnRefresh: !heroParallaxMobile
     }
   };
-  if (heroParallaxMobile) {
-    parallaxEnd.modifiers = {
-      y: (y) => {
-        const n = parseFloat(y);
-        return `${Math.round(Number.isFinite(n) ? n : 0)}px`;
-      }
-    };
-  }
   gsap.fromTo(media, { y: 0 }, parallaxEnd);
 
   ScrollTrigger.create({
@@ -993,6 +993,8 @@ function onResize() {
 
   clearTimeout(resizeTimer);
   resizeTimer = setTimeout(() => {
+    heroParallaxTravelPx =
+      (window.visualViewport?.height ?? window.innerHeight) * 0.22;
     ScrollTrigger.refresh();
     invalidateFooterStatueFrames();
   }, 150);
@@ -1038,6 +1040,8 @@ async function init() {
   window.addEventListener('orientationchange', () => {
     setTimeout(() => {
       lastResizeWidth = document.documentElement.clientWidth;
+      heroParallaxTravelPx =
+        (window.visualViewport?.height ?? window.innerHeight) * 0.22;
       ScrollTrigger.refresh();
     }, 300);
   });
