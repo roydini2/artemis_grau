@@ -1,7 +1,5 @@
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
-const CINEMATIC_VIDEO_START_SEC = 8;
-
 // ===== DOM =====
 const header = document.getElementById('site-header');
 const menuToggle = document.getElementById('menu-toggle');
@@ -416,32 +414,41 @@ function initFooterStatueFrameScroll() {
 
 function initCinematicVideoPlayback(video) {
   if (!video) return;
-  const start = CINEMATIC_VIDEO_START_SEC;
-  const clampToStart = () => {
-    if (video.currentTime < start - 0.08) {
-      try {
-        video.currentTime = start;
-      } catch (e) { /* ignore */ }
-    }
-  };
-  video.addEventListener('loadedmetadata', clampToStart);
-  video.addEventListener('seeked', clampToStart);
   video.addEventListener('ended', () => {
-    video.currentTime = start;
+    try {
+      video.currentTime = 0;
+    } catch (e) { /* ignore */ }
     video.play().catch(() => {});
   });
 }
 
 function playCinematicFromStart(video) {
   if (!video) return;
-  const run = () => {
-    try {
-      video.currentTime = CINEMATIC_VIDEO_START_SEC;
-    } catch (e) { /* ignore */ }
+  const playNow = () => {
     video.play().catch(() => {});
   };
-  if (video.readyState >= 1) run();
-  else video.addEventListener('loadeddata', run, { once: true });
+  const resetAndPlay = () => {
+    try {
+      video.currentTime = 0;
+    } catch (e) { /* ignore */ }
+    if (video.seeking) {
+      video.addEventListener('seeked', () => playNow(), { once: true });
+    } else {
+      playNow();
+    }
+  };
+  if (video.readyState >= 3) {
+    resetAndPlay();
+    return;
+  }
+  let fired = false;
+  const fire = () => {
+    if (fired) return;
+    fired = true;
+    resetAndPlay();
+  };
+  video.addEventListener('canplay', fire, { once: true });
+  video.addEventListener('loadeddata', fire, { once: true });
 }
 
 function initCinematicVideo() {
@@ -481,19 +488,24 @@ function initCinematicVideo() {
       pin: true,
       scrub: 0.55,
       anticipatePin: 1,
-      invalidateOnRefresh: true,
-      onEnter: () => {
-        playCinematicFromStart(video);
-      },
-      onLeave: () => {
-        if (video) video.pause();
-      },
-      onEnterBack: () => {
-        playCinematicFromStart(video);
-      },
-      onLeaveBack: () => {
-        if (video) video.pause();
-      }
+      invalidateOnRefresh: true
+    }
+  });
+
+  /* Video unabhängig vom Pin: startet, sobald die Sektion sichtbar wird (vor „Einrasten“) */
+  const cinematicSection = document.getElementById('stimmung');
+  ScrollTrigger.create({
+    trigger: cinematicSection || pin,
+    start: 'top bottom',
+    end: 'bottom top',
+    invalidateOnRefresh: true,
+    onEnter: () => playCinematicFromStart(video),
+    onEnterBack: () => playCinematicFromStart(video),
+    onLeave: () => {
+      if (video) video.pause();
+    },
+    onLeaveBack: () => {
+      if (video) video.pause();
     }
   });
 
