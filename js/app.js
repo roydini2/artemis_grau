@@ -232,6 +232,28 @@ let lastResizeWidth = document.documentElement.clientWidth;
 let heroParallaxTravelPx =
   (window.visualViewport?.height ?? window.innerHeight) * 0.22;
 
+/**
+ * Mobil: ScrollTrigger end darf nicht an die live wechselnde Hero-Höhe (lvh/svh) gekoppelt sein — sonst springt
+ * der Fortschritt beim Loslassen (Browser-UI), Bild wirkt „plötzlich größer“. Desktop: Range ungenutzt.
+ */
+let heroParallaxScrollRangePx = 720;
+
+function syncHeroParallaxMetrics() {
+  const el = document.querySelector('.hero');
+  heroParallaxTravelPx =
+    (window.visualViewport?.height ?? window.innerHeight) * 0.22;
+  if (el && window.matchMedia('(max-width: 768px)').matches) {
+    const h = el.getBoundingClientRect().height;
+    heroParallaxScrollRangePx = Math.max(400, Math.round(h));
+  }
+}
+
+function getHeroParallaxScrollEnd() {
+  return window.matchMedia('(max-width: 768px)').matches
+    ? `+=${heroParallaxScrollRangePx}`
+    : 'bottom top';
+}
+
 function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
@@ -378,15 +400,14 @@ function initScrollChrome() {
   tick();
 }
 
-// ===== HERO PARALLAX — Touch: kein scrub:true + keine px-Rundung; y-Amplitude aus Cache (s. heroParallaxTravelPx). =====
+// ===== HERO PARALLAX — Mobil: fixe Scroll-Distanz (+=px), nicht end bottom top (lvh-Resize beim Loslassen). =====
 function initHeroParallax() {
   const hero = document.querySelector('.hero');
   const media = document.getElementById('hero-video-media');
   const plane = document.getElementById('hero-video-plane');
   if (!hero || !media) return;
 
-  heroParallaxTravelPx =
-    (window.visualViewport?.height ?? window.innerHeight) * 0.22;
+  syncHeroParallaxMetrics();
 
   const statuePlane = document.getElementById('footer-statue-video-wrap');
 
@@ -408,7 +429,7 @@ function initHeroParallax() {
     scrollTrigger: {
       trigger: hero,
       start: 'top top',
-      end: 'bottom top',
+      end: () => getHeroParallaxScrollEnd(),
       /* Mobil etwas weicher als Desktop: Touch liefert sprunghafte Deltas; numerisches scrub glättet ohne große Latenz. */
       scrub: heroParallaxMobile ? 0.65 : 0.45,
       invalidateOnRefresh: !heroParallaxMobile
@@ -419,13 +440,18 @@ function initHeroParallax() {
   ScrollTrigger.create({
     trigger: hero,
     start: 'top top',
-    end: 'bottom top',
+    end: () => getHeroParallaxScrollEnd(),
     onLeave: hideVideoPlane,
     onEnterBack: showVideoPlane,
     onRefresh: (self) => {
       if (self.progress >= 0.999) hideVideoPlane();
       else showVideoPlane();
     }
+  });
+
+  requestAnimationFrame(() => {
+    syncHeroParallaxMetrics();
+    ScrollTrigger.refresh();
   });
 }
 
@@ -993,8 +1019,7 @@ function onResize() {
 
   clearTimeout(resizeTimer);
   resizeTimer = setTimeout(() => {
-    heroParallaxTravelPx =
-      (window.visualViewport?.height ?? window.innerHeight) * 0.22;
+    syncHeroParallaxMetrics();
     ScrollTrigger.refresh();
     invalidateFooterStatueFrames();
   }, 150);
@@ -1021,6 +1046,7 @@ async function init() {
 
   window.addEventListener('load', () => {
     syncScrollTop();
+    syncHeroParallaxMetrics();
     ScrollTrigger.refresh();
   });
 
@@ -1040,8 +1066,7 @@ async function init() {
   window.addEventListener('orientationchange', () => {
     setTimeout(() => {
       lastResizeWidth = document.documentElement.clientWidth;
-      heroParallaxTravelPx =
-        (window.visualViewport?.height ?? window.innerHeight) * 0.22;
+      syncHeroParallaxMetrics();
       ScrollTrigger.refresh();
     }, 300);
   });
