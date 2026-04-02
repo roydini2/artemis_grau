@@ -1152,10 +1152,6 @@ body.is-intro-active .grain-overlay {
 }
 
 /* ===== BEWERTUNGEN — Editorial (Screenshot-Stil, ohne Bilder) ===== */
-.section-reviews-editorial {
-  background: var(--bg-light);
-}
-
 .reviews-editorial-toolbar {
   display: flex;
   align-items: flex-start;
@@ -1301,6 +1297,11 @@ body.is-intro-active .grain-overlay {
 }
 
 .section-sand {
+  background: var(--bg-sand-clean);
+}
+
+/* Nach .section: sonst überschreibt .section { background: bg-light } diese Sektion */
+.section.section-reviews-editorial {
   background: var(--bg-sand-clean);
 }
 
