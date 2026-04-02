@@ -137,6 +137,11 @@
 
   --font-display: 'Cinzel', Georgia, serif;
   --font-body:    'DM Sans', system-ui, sans-serif;
+  /* Fließtext wie Gästestimmen-Zitat (.review-slide__text); nicht für Überschriften / Hero-Logo / Raute+Kicker */
+  --font-prose: var(--font-body);
+  --prose-size: clamp(1.05rem, 2.4vw, 1.35rem);
+  --prose-lh: 1.35;
+  --prose-track: -0.01em;
 
   --header-height: 80px;
   --dock-height: 58px;
@@ -749,10 +754,11 @@ body.is-intro-active .grain-overlay {
 .hero-letter { display: inline-block; }
 
 .hero-subline {
-  font-family: var(--font-body);
-  font-size: clamp(0.92rem, 1.25vw, 1.08rem);
+  font-family: var(--font-prose);
+  font-size: var(--prose-size);
   font-weight: 500;
-  line-height: 1.55;
+  line-height: var(--prose-lh);
+  letter-spacing: var(--prose-track);
   color: rgba(243, 240, 236, 0.78);
   margin: 0 0 2rem;
   max-width: 32ch;
@@ -896,10 +902,11 @@ body.is-intro-active .grain-overlay {
 }
 
 .hero-stage2-text {
-  font-family: var(--font-body);
-  font-size: 1rem;
+  font-family: var(--font-prose);
+  font-size: var(--prose-size);
   font-weight: 400;
-  line-height: 1.85;
+  line-height: var(--prose-lh);
+  letter-spacing: var(--prose-track);
   max-width: 48ch;
   margin-left: auto;
   color: rgba(243, 240, 236, 0.78);
@@ -992,7 +999,8 @@ body.is-intro-active .grain-overlay {
 }
 
 .scroll-zone-text .body-text {
-  color: var(--text-muted);
+  color: var(--text-on-light);
+  opacity: 0.92;
 }
 
 .scroll-zone-text .label {
@@ -1240,11 +1248,11 @@ body.is-intro-active .grain-overlay {
 .review-slide__text {
   position: relative;
   z-index: 1;
-  font-family: var(--font-body);
-  font-size: clamp(1.05rem, 2.4vw, 1.35rem);
+  font-family: var(--font-prose);
+  font-size: var(--prose-size);
   font-weight: 400;
-  line-height: 1.35;
-  letter-spacing: -0.01em;
+  line-height: var(--prose-lh);
+  letter-spacing: var(--prose-track);
   color: var(--text-on-light);
   max-width: 38rem;
   padding-left: clamp(1.5rem, 4vw, 2.25rem);
@@ -1258,7 +1266,7 @@ body.is-intro-active .grain-overlay {
 
 .review-slide__name {
   display: block;
-  font-family: var(--font-body);
+  font-family: var(--font-prose);
   font-size: 0.95rem;
   font-weight: 600;
   color: var(--text-on-light);
@@ -1267,7 +1275,7 @@ body.is-intro-active .grain-overlay {
 
 .review-slide__meta {
   display: block;
-  font-family: var(--font-body);
+  font-family: var(--font-prose);
   font-size: 0.58rem;
   font-weight: 500;
   text-transform: uppercase;
@@ -1350,10 +1358,12 @@ body.is-intro-active .grain-overlay {
 .heading--light { color: var(--text-on-dark); }
 
 .body-text {
-  font-size: 1rem;
+  font-family: var(--font-prose);
+  font-size: var(--prose-size);
   font-weight: 400;
-  line-height: 1.85;
-  color: var(--text-muted);
+  line-height: var(--prose-lh);
+  letter-spacing: var(--prose-track);
+  color: var(--text-on-light);
   max-width: 48ch;
 }
 
@@ -1369,6 +1379,8 @@ body.is-intro-active .grain-overlay {
 
 .body-text--note {
   font-size: 0.9rem;
+  line-height: var(--prose-lh);
+  letter-spacing: var(--prose-track);
   opacity: 0.75;
   margin-top: 1.5rem;
 }
@@ -1763,9 +1775,11 @@ body.is-intro-active .grain-overlay {
   top: 50%;
   max-width: min(20rem, 30vw);
   margin: 0;
-  font-size: clamp(0.8rem, 1.05vw, 0.9rem);
-  letter-spacing: 0.04em;
-  line-height: 1.55;
+  font-family: var(--font-prose);
+  font-size: clamp(0.95rem, 1.35vw, 1.08rem);
+  font-weight: 400;
+  letter-spacing: var(--prose-track);
+  line-height: var(--prose-lh);
   text-align: right;
   color: rgba(243, 240, 236, 0.88);
   text-shadow: 0 2px 20px rgba(11, 16, 18, 0.5);
@@ -1904,7 +1918,7 @@ body.is-intro-active .grain-overlay {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  font-family: var(--font-body);
+  font-family: var(--font-prose);
   font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -1993,16 +2007,18 @@ body.is-intro-active .grain-overlay {
 .kap-item { display: flex; flex-direction: column; align-items: center; }
 
 .kap-zahl {
-  font-family: var(--font-display);
+  font-family: var(--font-prose);
   font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+  font-weight: 700;
   color: var(--text-on-light);
   line-height: 1;
   margin-bottom: 0.4rem;
 }
 
 .kap-text {
+  font-family: var(--font-prose);
   font-size: 0.75rem;
-  font-weight: 400;
+  font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--text-on-sand);
@@ -2069,7 +2085,7 @@ body.is-intro-active .grain-overlay {
 /* ===== CTA BUTTON ===== */
 .cta-button {
   display: inline-block;
-  font-family: var(--font-body);
+  font-family: var(--font-prose);
   font-size: 0.85rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -2121,14 +2137,19 @@ body.is-intro-active .grain-overlay {
 }
 
 .contact-block p {
-  font-size: 1rem;
-  line-height: 1.6;
+  font-family: var(--font-prose);
+  font-size: var(--prose-size);
+  line-height: var(--prose-lh);
+  letter-spacing: var(--prose-track);
   color: var(--text-on-dark);
   opacity: 0.9;
 }
 
 .contact-note {
+  font-family: var(--font-prose) !important;
   font-size: 0.85rem !important;
+  line-height: var(--prose-lh);
+  letter-spacing: var(--prose-track);
   opacity: 0.55 !important;
   margin-top: 0.35rem;
 }
@@ -2157,9 +2178,11 @@ body.is-intro-active .grain-overlay {
 }
 
 .contact-anfahrt-line {
-  font-size: 0.95rem;
+  font-family: var(--font-prose);
+  font-size: var(--prose-size);
   font-weight: 400;
-  line-height: 1.65;
+  line-height: var(--prose-lh);
+  letter-spacing: var(--prose-track);
   color: var(--text-on-dark);
   opacity: 0.88;
   margin-bottom: 0.35rem;
@@ -2167,6 +2190,15 @@ body.is-intro-active .grain-overlay {
 
 .contact-anfahrt-line:last-child {
   margin-bottom: 0;
+}
+
+/* Zweite Zeile (Route) + dritte Zeile (Fußweg) — gleiche Struktur Bus / S-Bahn */
+.contact-anfahrt-item > .contact-anfahrt-line:nth-child(2) {
+  margin-bottom: 0.12rem;
+}
+
+.contact-anfahrt-line--foot {
+  margin-top: 0;
 }
 
 .contact-anfahrt-line strong {
@@ -2323,11 +2355,13 @@ body.is-intro-active .grain-overlay {
 }
 
 .map-consent-text {
-  font-size: 0.85rem;
+  font-family: var(--font-prose);
+  font-size: var(--prose-size);
+  line-height: var(--prose-lh);
+  letter-spacing: var(--prose-track);
   color: rgba(243, 240, 236, 0.7);
   margin-bottom: 1.25rem;
   max-width: 22rem;
-  line-height: 1.55;
 }
 
 .map-consent-text a {
@@ -2438,6 +2472,12 @@ body.is-intro-active .grain-overlay {
   margin: 0;
 }
 
+.footer-main-heading__sub {
+  display: inline-block;
+  margin-top: 0.08em;
+  letter-spacing: 0.04em;
+}
+
 .footer-contact-blocks {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -2450,9 +2490,11 @@ body.is-intro-active .grain-overlay {
 }
 
 .footer-contact-block p {
-  font-size: 0.95rem;
+  font-family: var(--font-prose);
+  font-size: var(--prose-size);
   font-weight: 400;
-  line-height: 1.55;
+  line-height: var(--prose-lh);
+  letter-spacing: var(--prose-track);
 }
 
 .footer-tel {
@@ -2572,6 +2614,82 @@ body.is-intro-active .grain-overlay {
   outline-color: #ffffff;
 }
 
+/* Statue-Footer: kompaktere Typo (Adresse, Tel., Anfahrt, Karte) */
+.site-footer--statue .footer-contact-head .label--on-statue {
+  font-size: 0.58rem;
+  letter-spacing: 0.22em;
+}
+
+.site-footer--statue .footer-main-heading {
+  font-size: clamp(1.2rem, 3vw, 1.65rem);
+  letter-spacing: 0.035em;
+  line-height: 1.07;
+}
+
+.site-footer--statue .footer-main-heading__sub {
+  letter-spacing: 0.035em;
+}
+
+.site-footer--statue .footer-contact-block p {
+  font-size: clamp(0.76rem, 2vw, 0.88rem);
+  line-height: 1.45;
+  letter-spacing: 0;
+}
+
+.site-footer--statue .footer-contact-block .contact-label,
+.site-footer--statue .footer-anfahrt .contact-label {
+  font-size: 0.56rem;
+  letter-spacing: 0.2em;
+  margin-bottom: 0.45rem;
+}
+
+.site-footer--statue .footer-contact-block .contact-note {
+  font-size: 0.68rem !important;
+  line-height: 1.4;
+  margin-top: 0.28rem;
+}
+
+.site-footer--statue .contact-anfahrt-line {
+  font-size: clamp(0.74rem, 1.95vw, 0.86rem);
+  line-height: 1.45;
+  letter-spacing: 0;
+  margin-bottom: 0.28rem;
+}
+
+.site-footer--statue .contact-anfahrt-line:last-child {
+  margin-bottom: 0;
+}
+
+.site-footer--statue .contact-anfahrt-item > .contact-anfahrt-line:nth-child(2) {
+  margin-bottom: 0.08rem;
+}
+
+.site-footer--statue .map-consent-text {
+  font-size: clamp(0.72rem, 1.9vw, 0.82rem);
+  line-height: 1.45;
+  letter-spacing: 0;
+}
+
+.site-footer--statue .map-consent-btn {
+  font-size: 0.68rem;
+  padding: 0.65rem 1.65rem;
+}
+
+.site-footer--statue .footer-logo {
+  font-size: clamp(1.35rem, 3.2vw, 2rem);
+}
+
+.site-footer--statue .footer-legal a {
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+}
+
+.site-footer--statue .footer-copy {
+  font-size: clamp(0.62rem, 1.65vw, 0.72rem);
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+}
+
 .footer-inner {
   max-width: 1200px;
   margin: 0 auto;
@@ -2626,8 +2744,10 @@ body.is-intro-active .grain-overlay {
 }
 
 .footer-col p {
-  font-size: 0.88rem;
-  line-height: 1.6;
+  font-family: var(--font-prose);
+  font-size: var(--prose-size);
+  line-height: var(--prose-lh);
+  letter-spacing: var(--prose-track);
   color: rgba(243, 240, 236, 0.95);
 }
 
@@ -2796,9 +2916,12 @@ body.is-intro-active .grain-overlay {
 
 .legal-doc p,
 .legal-doc li {
-  font-size: 0.95rem;
-  line-height: 1.75;
-  color: var(--text-muted);
+  font-family: var(--font-prose);
+  font-size: var(--prose-size);
+  line-height: var(--prose-lh);
+  letter-spacing: var(--prose-track);
+  color: var(--text-on-light);
+  opacity: 0.88;
 }
 
 .legal-doc p {
@@ -3035,6 +3158,118 @@ body.is-intro-active .grain-overlay {
 
   .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 2rem; }
   .feier-kapazitaet { grid-template-columns: 1fr; gap: 1rem; }
+
+  /* Feiern-Galerie: mobil 2+1, drei klare Größen; C kleiner + versetzt (nicht mittig) */
+  .gallery-pair--feier-trio {
+    display: grid;
+    grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
+    grid-template-rows: auto auto;
+    align-items: start;
+    justify-items: stretch;
+    gap: clamp(0.55rem, 2.8vw, 0.95rem) clamp(0.5rem, 2.5vw, 0.85rem);
+    padding-right: 0;
+  }
+
+  .gallery-pair--feier-trio .gallery-pair__col--a {
+    grid-column: 1;
+    grid-row: 1;
+    margin-top: clamp(0.85rem, 3.5vw, 1.5rem);
+    width: 92%;
+    max-width: none;
+    justify-self: start;
+  }
+
+  .gallery-pair--feier-trio .gallery-pair__col--b {
+    grid-column: 2;
+    grid-row: 1;
+    margin-top: 0;
+    width: 100%;
+    max-width: none;
+  }
+
+  .gallery-pair--feier-trio .gallery-pair__col--c {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin-top: clamp(0.65rem, 2.5vw, 1.15rem);
+    width: min(100%, clamp(200px, 64vw, 292px));
+    max-width: none;
+    justify-self: start;
+    margin-left: clamp(0.35rem, 5.5vw, 2.25rem);
+    margin-right: auto;
+  }
+
+  /* A = kleinstes, B = größtes, C = mittlere Fläche (deutlich kleiner als vorher) */
+  .gallery-pair--feier-trio .gallery-pair__col--a.media-dim {
+    aspect-ratio: 2 / 3;
+    max-height: min(38vh, 228px);
+  }
+
+  .gallery-pair--feier-trio .gallery-pair__col--b.media-dim {
+    aspect-ratio: 5 / 6;
+    max-height: min(56vh, 392px);
+  }
+
+  .gallery-pair--feier-trio .gallery-pair__col--c.media-dim {
+    aspect-ratio: 4 / 5;
+    max-height: min(36vh, 248px);
+  }
+
+  /* Speisekarte mobil: unterschiedlich groß, versetzt, mit klarem Abstand (keine Überlappung) */
+  .speisekarte-gallery .gallery-pair--editorial {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: clamp(1.15rem, 5vw, 1.9rem);
+    max-width: none;
+    width: 100%;
+    margin: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .speisekarte-gallery .gallery-pair--editorial .gallery-pair__col--a {
+    grid-column: 1;
+    grid-row: 1;
+    width: min(100%, clamp(164px, 54vw, 228px));
+    max-width: none;
+    justify-self: start;
+    margin-left: clamp(0.2rem, 4vw, 1.35rem);
+    margin-right: auto;
+  }
+
+  .speisekarte-gallery .gallery-pair--editorial .gallery-pair__col--b {
+    grid-column: 1;
+    grid-row: 2;
+    margin-top: 0;
+    width: min(100%, clamp(186px, 62vw, 268px));
+    max-width: none;
+    justify-self: end;
+    margin-left: auto;
+    margin-right: clamp(0.3rem, 4.5vw, 1.2rem);
+  }
+
+  .speisekarte-gallery .gallery-pair--editorial .gallery-pair__col--a.media-dim {
+    aspect-ratio: 3 / 4;
+    max-height: min(30vh, 200px);
+  }
+
+  .speisekarte-gallery .gallery-pair--editorial .gallery-pair__col--b.media-dim {
+    aspect-ratio: 4 / 5;
+    max-height: min(34vh, 224px);
+  }
+
+  .speisekarte-gallery .gallery-pair--editorial .gallery-pair__col--a img,
+  .speisekarte-gallery .gallery-pair--editorial .gallery-pair__col--b img {
+    aspect-ratio: unset;
+  }
+
+  .speisekarte-gallery .gallery-pair--editorial .gallery-pair__col--a .gallery-pair__pan img {
+    object-position: center 42%;
+  }
+
+  .speisekarte-gallery .gallery-pair--editorial .gallery-pair__col--b .gallery-pair__pan img {
+    object-position: center 38%;
+  }
 
   .karten-links { flex-direction: column; }
   #speisekarte .karte-link { justify-content: center; }

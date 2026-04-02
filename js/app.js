@@ -613,7 +613,7 @@ function initRevealAnimations() {
 }
 
 // ===== EDITORIAL GALLERY PAIR PARALLAX =====
-/** Ganze Bild-Spalten (figure) verschieben — nicht der Bild-Inhalt. Editorial: Mobil reduzierter Drift. */
+/** Ganze Bild-Spalten (figure) verschieben — nicht der Bild-Inhalt. Editorial Desktop: Drift A. Editorial ≤768px: unteres Bild wandert beim Runterscrollen leicht nach unten. */
 function initGalleryPairParallax() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
@@ -634,19 +634,33 @@ function initGalleryPairParallax() {
     const tl = gsap.timeline({ scrollTrigger: st });
 
     if (root.classList.contains('gallery-pair--editorial')) {
-      const bH = colB.offsetHeight || 500;
-      const aH = colA.offsetHeight || 400;
-      let drift = Math.max(0, bH - aH);
-      if (window.matchMedia('(max-width: 768px)').matches) {
-        drift *= 0.48;
+      const isEditorialMobile = window.matchMedia('(max-width: 768px)').matches;
+      if (isEditorialMobile) {
+        const bAmp = 32;
+        tl.fromTo(
+          colB,
+          { y: -bAmp, force3D: true },
+          { y: bAmp, ease: 'none', duration: 1, force3D: true },
+          0
+        );
+      } else {
+        const bH = colB.offsetHeight || 500;
+        const aH = colA.offsetHeight || 400;
+        const drift = Math.max(0, bH - aH);
+        tl.fromTo(colA, { y: 0, force3D: true }, { y: drift, ease: 'none', duration: 1, force3D: true }, 0);
       }
-      tl.fromTo(colA, { y: 0, force3D: true }, { y: drift, ease: 'none', duration: 1, force3D: true }, 0);
     } else if (root.classList.contains('gallery-pair--feier-trio')) {
       if (!colC) return;
-      tl.fromTo(colA, { y: 36, force3D: true }, { y: -30, ease: 'none', duration: 1, force3D: true }, 0).fromTo(
+      const feierM = window.matchMedia('(max-width: 768px)').matches ? 0.5 : 1;
+      tl.fromTo(
+        colA,
+        { y: 36 * feierM, force3D: true },
+        { y: -30 * feierM, ease: 'none', duration: 1, force3D: true },
+        0
+      ).fromTo(
         colC,
-        { y: -38, force3D: true },
-        { y: 28, ease: 'none', duration: 1, force3D: true },
+        { y: -38 * feierM, force3D: true },
+        { y: 28 * feierM, ease: 'none', duration: 1, force3D: true },
         0
       );
     } else {
