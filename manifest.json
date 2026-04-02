@@ -4,8 +4,8 @@
   "description": "Griechisches Restaurant in Berlin-Schöneweide – Direkt an der Spree seit 1997",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#111111",
-  "theme_color": "#C8873A",
+  "background_color": "#212325",
+  "theme_color": "#0B1012",
   "lang": "de",
   "icons": [
     {

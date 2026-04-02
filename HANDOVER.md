@@ -25,10 +25,12 @@ Kein Bundler, kein Build-Schritt: Dateien können direkt auf jedem statischen We
 
 - **Preloader** mit Ladebalken (wartet u. a. auf erste Canvas-Frames)
 - **Zwei Canvas-Scroll-Zonen**: Küche (`#kueche`) mit Food-Frames, Geschichte (`#artemis`) mit Statuen-Frames
-- **Smooth Scroll** inkl. Anker-Navigation (Header, Mobile-Menü) mit Offset unter der fixen Kopfzeile
-- **Responsives Mobile-Menü** (Hamburger, Escape schließt, Fokus-Labels)
+- **Smooth Scroll** (Lenis) inkl. Anker-Navigation; **fixierte Dock-Leiste unten** (Speisekarte, Anrufen, Burger) — kein Top-Header; Sektionen nutzen `scroll-margin-bottom` für Abstand zur Leiste
+- **Responsives Menü** (Burger öffnet Vollbild-Links: Terrasse, Geschichte, Feiern, Kontakt; Escape schließt)
 - **GSAP-Reveals** für Sektionen (`data-anim`, ScrollTrigger)
 - **Marquee**-Textband (dekorativ)
+- **Cinematic-Video-Block** `#stimmung` nach der Terrasse: WebM + MP4-Fallback unter `public/videos/artemis-mitte.*`, Poster `artemis-mitte-poster.jpg`; GSAP Pin/Scrub (bei `prefers-reduced-motion: reduce` statisch, Video läuft)
+- **Editorial-Bildpaare** in `#speisekarte` und `#feiern`: je zwei PNGs, Klasse `gallery-pair`, einheitlicher Look mit `.media-dim`, leichter Scroll-Parallax (`data-parallax-pair`)
 - **Bewertungs-Sektion** mit animierten Zahlen (Stats)
 - **Kontakt**: Öffnungszeiten, Adresse, Telefon, Anfahrt (Bus/S-Bahn)
 - **Google Maps** nur nach Einwilligung („Karte laden“) — DSGVO-freundlicher Einstieg
@@ -70,7 +72,7 @@ Zum Verlinken und Bearbeiten in `index.html`:
 - `#reservierung-telefon` — Ziel für „Reservieren“-Buttons
 - `#anfahrt` — Anfahrtstext
 
-Navigation (Desktop + Mobile): gleiche Anker wie oben.
+Dock unten: Logo → `#hero`, Speisekarte → `#speisekarte`, Anrufen → `tel:`, Burger → übrige Anker.
 
 ### Konfiguration in `js/app.js` (für Entwickler)
 
@@ -137,7 +139,8 @@ Alle drei Stellen sollten **übereinstimmen**, sonst wirkt die Seite widersprüc
 
 ### Bilder tauschen
 
-- Galerien und Hero-relevante Bilder: Pfade wie `public/images/...` in `index.html`
+- Galerien und Hero-relevante Bilder: Pfade wie `public/images/...` in `index.html`; Speisekarte/Feiern-Paare: PNGs in `public/images/` bzw. `public/images/feier/` (Dateinamen im HTML)
+- Cinematic-Clip: `public/videos/artemis-mitte.webm` (primär), `artemis-mitte.mp4` (Fallback), Poster bei Bedarf ersetzen
 - Terrassen-Hauptbild: `public/images/terasse.webp` (oder Pfad im HTML ändern)
 - **Alt-Texte** (`alt="..."`) für Barrierefreiheit und SEO mit anpassen
 
