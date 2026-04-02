@@ -78,43 +78,136 @@ document.addEventListener('keydown', (e) => {
   if (menuToggle) menuToggle.focus();
 });
 
-/** Unten: Menü öffnet automatisch; beim Hochscrollen (Ende verlassen) wieder zu. */
+/** Unten: Desktop wie bisher sofort; mobil erst nach kurzer Ruhe am Ende + erneutem Impuls nach unten (Wheel/Touch). */
 function initMobileNavAutoOpenAtBottom() {
   if (!mobileNav || !menuToggle) return;
 
   const bottomThresholdPx = 72;
   const minScrollablePx = 160;
+  const mobileMq = window.matchMedia('(max-width: 768px)');
   let wasInBottomZone = false;
+  let armTimer = null;
+  let armed = false;
+  let lastTouchY = null;
+
+  const getLimit = () =>
+    typeof lenis.limit === 'number'
+      ? lenis.limit
+      : Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+
+  const getScroll = () => (typeof lenis.scroll === 'number' ? lenis.scroll : window.scrollY);
+
+  const disarm = () => {
+    armed = false;
+    if (armTimer != null) {
+      clearTimeout(armTimer);
+      armTimer = null;
+    }
+  };
+
+  const tryOpenFromNudge = () => {
+    if (!mobileMq.matches || !armed) return;
+    const limit = getLimit();
+    const scroll = getScroll();
+    if (scroll < limit - bottomThresholdPx) return;
+    disarm();
+    setMobileNavOpen(true);
+    requestAnimationFrame(() => {
+      if (document.activeElement === menuToggle) menuToggle.blur();
+    });
+  };
+
+  const scheduleArmAfterBottomArrival = () => {
+    disarm();
+    const tryWhenCalm = () => {
+      armTimer = null;
+      const limit = getLimit();
+      const scroll = getScroll();
+      if (scroll < limit - bottomThresholdPx) return;
+      if (Math.abs(lenis.velocity) > 0.22) {
+        armTimer = window.setTimeout(tryWhenCalm, 100);
+        return;
+      }
+      armed = true;
+    };
+    armTimer = window.setTimeout(tryWhenCalm, 400);
+  };
 
   lenis.on('scroll', () => {
-    const limit =
-      typeof lenis.limit === 'number'
-        ? lenis.limit
-        : Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-    const scroll = typeof lenis.scroll === 'number' ? lenis.scroll : window.scrollY;
+    const limit = getLimit();
+    const scroll = getScroll();
     if (limit < minScrollablePx) return;
 
     const inBottomZone = scroll >= limit - bottomThresholdPx;
-    if (inBottomZone && !wasInBottomZone) {
-      setMobileNavOpen(true);
-      requestAnimationFrame(() => {
-        if (document.activeElement === menuToggle) menuToggle.blur();
-      });
+
+    if (!mobileMq.matches) {
+      if (inBottomZone && !wasInBottomZone) {
+        setMobileNavOpen(true);
+        requestAnimationFrame(() => {
+          if (document.activeElement === menuToggle) menuToggle.blur();
+        });
+      }
+      if (wasInBottomZone && !inBottomZone && mobileNav.classList.contains('open')) {
+        setMobileNavOpen(false);
+      }
+      wasInBottomZone = inBottomZone;
+      return;
     }
-    if (wasInBottomZone && !inBottomZone && mobileNav.classList.contains('open')) {
-      setMobileNavOpen(false);
+
+    if (!inBottomZone) {
+      disarm();
+      lastTouchY = null;
+      if (wasInBottomZone && mobileNav.classList.contains('open')) {
+        setMobileNavOpen(false);
+      }
+      wasInBottomZone = false;
+      return;
     }
-    wasInBottomZone = inBottomZone;
+
+    if (!wasInBottomZone) {
+      wasInBottomZone = true;
+      scheduleArmAfterBottomArrival();
+    }
   });
+
+  window.addEventListener(
+    'wheel',
+    (e) => {
+      if (!mobileMq.matches || !armed) return;
+      if (e.deltaY > 8) tryOpenFromNudge();
+    },
+    { passive: true }
+  );
+
+  document.addEventListener(
+    'touchstart',
+    (e) => {
+      if (!mobileMq.matches) return;
+      const t = e.targetTouches && e.targetTouches[0];
+      lastTouchY = t ? t.clientY : null;
+    },
+    { passive: true }
+  );
+
+  document.addEventListener(
+    'touchmove',
+    (e) => {
+      if (!mobileMq.matches || !armed) return;
+      const t = e.targetTouches && e.targetTouches[0];
+      if (!t) return;
+      if (lastTouchY == null) {
+        lastTouchY = t.clientY;
+        return;
+      }
+      const dy = lastTouchY - t.clientY;
+      lastTouchY = t.clientY;
+      if (dy > 10) tryOpenFromNudge();
+    },
+    { passive: true }
+  );
 }
 
 let lastResizeWidth = document.documentElement.clientWidth;
-
-/** Statue-Ebene: hart an/aus (kein weiches Einblenden über helle Fläche). */
-function footerStatueVideoOpacityFromRect(r, vh) {
-  if (!vh || r.bottom <= 0 || r.top >= vh) return 0;
-  return 1;
-}
 
 function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -207,6 +300,8 @@ function initHeroParallax() {
   if (!hero || !media) return;
 
   const statuePlane = document.getElementById('footer-statue-video-wrap');
+  const heroParallaxMq = window.matchMedia('(max-width: 768px)');
+  let parallaxTween = null;
 
   const hideVideoPlane = () => {
     if (plane) plane.style.visibility = 'hidden';
@@ -219,21 +314,36 @@ function initHeroParallax() {
     if (statuePlane) statuePlane.style.zIndex = '1';
   };
 
-  gsap.fromTo(
-    media,
-    { y: 0 },
-    {
-      y: () => -window.innerHeight * 0.22,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: hero,
-        start: 'top top',
-        end: 'bottom top',
-        scrub: 0.45,
-        invalidateOnRefresh: true
-      }
+  const applyHeroParallax = () => {
+    if (parallaxTween) {
+      parallaxTween.scrollTrigger?.kill();
+      parallaxTween.kill();
+      parallaxTween = null;
     }
-  );
+    gsap.set(media, { clearProps: 'transform' });
+    if (heroParallaxMq.matches) return;
+    parallaxTween = gsap.fromTo(
+      media,
+      { y: 0 },
+      {
+        y: () => -window.innerHeight * 0.22,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: hero,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: 0.45,
+          invalidateOnRefresh: true
+        }
+      }
+    );
+  };
+
+  applyHeroParallax();
+  heroParallaxMq.addEventListener('change', () => {
+    applyHeroParallax();
+    ScrollTrigger.refresh();
+  });
 
   ScrollTrigger.create({
     trigger: hero,
@@ -378,6 +488,14 @@ function initFooterStatueFrameScroll() {
       canvas.width = first.naturalWidth;
       canvas.height = first.naturalHeight;
 
+      const statueTouchMobile =
+        window.matchMedia('(max-width: 768px)').matches &&
+        window.matchMedia('(pointer: coarse)').matches;
+
+      const setWrapOpacityFromSt = (active) => {
+        wrap.style.opacity = active ? '1' : '0';
+      };
+
       gsap.to(proxy, {
         p: 1,
         ease: 'none',
@@ -386,14 +504,14 @@ function initFooterStatueFrameScroll() {
           trigger: zone,
           start: 'top bottom',
           end: 'bottom top',
-          scrub: 0.65,
-          invalidateOnRefresh: true
-        },
-        onUpdate: () => {
-          const r = zone.getBoundingClientRect();
-          const vh = window.innerHeight || 1;
-          wrap.style.opacity = String(footerStatueVideoOpacityFromRect(r, vh));
-          paintProgress(proxy.p);
+          scrub: statueTouchMobile ? true : 0.65,
+          invalidateOnRefresh: true,
+          onToggle: (self) => {
+            setWrapOpacityFromSt(self.isActive);
+          },
+          onUpdate: () => {
+            paintProgress(proxy.p);
+          }
         }
       });
 
@@ -404,6 +522,8 @@ function initFooterStatueFrameScroll() {
 
       requestAnimationFrame(() => {
         ScrollTrigger.refresh();
+        const st = ScrollTrigger.getById('footer-statue-frame-scrub');
+        if (st) setWrapOpacityFromSt(st.isActive);
         syncFromScrollTrigger();
       });
     })
@@ -455,13 +575,15 @@ function initCinematicVideo() {
   const pin = document.getElementById('cinematic-pin');
   const stage = document.getElementById('cinematic-stage');
   const video = document.getElementById('cinematic-video');
-  if (!pin || !stage) return;
+  const playBtn = document.getElementById('cinematic-mobile-play');
+  if (!pin || !stage || !video) return;
 
   initCinematicVideoPlayback(video);
 
   const copyFollow = document.getElementById('cinematic-copy-follow');
   const copyLead = copyFollow?.querySelector('.cinematic-copy--lead');
   const copyTrail = copyFollow?.querySelector('.cinematic-copy--trail');
+  const cinematicSection = document.getElementById('stimmung');
 
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     requestAnimationFrame(() => {
@@ -469,94 +591,143 @@ function initCinematicVideo() {
       if (copyLead && copyTrail) {
         gsap.set([copyLead, copyTrail], { clearProps: 'transform' });
       }
+      playBtn?.classList.add('is-concealed');
     });
     playCinematicFromStart(video);
     return;
   }
 
-  const isMobile = window.innerWidth < 769;
-  const startScale = isMobile ? 1 : 0.52;
   const videoTweenDur = 1;
-
   const textShiftX = () => Math.min(window.innerWidth * 0.032, 48);
 
-  const tl = gsap.timeline({
-    scrollTrigger: {
-      trigger: pin,
-      start: 'top top',
-      end: isMobile ? '+=50%' : '+=120%',
-      pin: true,
-      scrub: 0.55,
-      anticipatePin: 1,
-      invalidateOnRefresh: true
-    }
-  });
+  ScrollTrigger.matchMedia({
+    '(min-width: 769px)': function setupCinematicDesktop() {
+      const startScale = 0.52;
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: pin,
+          start: 'top top',
+          end: '+=120%',
+          pin: true,
+          scrub: 0.55,
+          anticipatePin: 1,
+          invalidateOnRefresh: true
+        }
+      });
 
-  /* Video unabhängig vom Pin: startet, sobald die Sektion sichtbar wird (vor „Einrasten“) */
-  const cinematicSection = document.getElementById('stimmung');
-  ScrollTrigger.create({
-    trigger: cinematicSection || pin,
-    start: 'top bottom',
-    end: 'bottom top',
-    invalidateOnRefresh: true,
-    onEnter: () => playCinematicFromStart(video),
-    onEnterBack: () => playCinematicFromStart(video),
-    onLeave: () => {
-      if (video) video.pause();
+      const visibilityST = ScrollTrigger.create({
+        trigger: cinematicSection || pin,
+        start: 'top bottom',
+        end: 'bottom top',
+        invalidateOnRefresh: true,
+        onEnter: () => playCinematicFromStart(video),
+        onEnterBack: () => playCinematicFromStart(video),
+        onLeave: () => {
+          if (video) video.pause();
+        },
+        onLeaveBack: () => {
+          if (video) video.pause();
+        }
+      });
+
+      tl.fromTo(
+        stage,
+        { scale: startScale, transformOrigin: '50% 50%' },
+        { scale: 1, ease: 'power2.out', duration: videoTweenDur },
+        0
+      );
+
+      if (copyLead && copyTrail) {
+        tl.fromTo(
+          copyLead,
+          {
+            x: () => textShiftX(),
+            scale: 0.94,
+            yPercent: -50,
+            transformOrigin: 'left center',
+            force3D: true
+          },
+          {
+            x: 0,
+            scale: 1,
+            yPercent: -50,
+            ease: 'power1.inOut',
+            duration: videoTweenDur,
+            force3D: true
+          },
+          0
+        ).fromTo(
+          copyTrail,
+          {
+            x: () => -textShiftX(),
+            scale: 0.94,
+            yPercent: -50,
+            transformOrigin: 'right center',
+            force3D: true
+          },
+          {
+            x: 0,
+            scale: 1,
+            yPercent: -50,
+            ease: 'power1.inOut',
+            duration: videoTweenDur,
+            force3D: true
+          },
+          0
+        );
+      }
+
+      return function cleanupCinematicDesktop() {
+        visibilityST.kill();
+        tl.scrollTrigger?.kill();
+        tl.kill();
+      };
     },
-    onLeaveBack: () => {
-      if (video) video.pause();
+    '(max-width: 768px)': function setupCinematicMobile() {
+      video.preload = 'metadata';
+      try {
+        video.pause();
+        video.currentTime = 0;
+      } catch (e) { /* ignore */ }
+
+      gsap.set(stage, { scale: 1, borderRadius: '0px', clearProps: 'will-change' });
+      if (copyLead && copyTrail) {
+        gsap.set([copyLead, copyTrail], { clearProps: 'transform' });
+      }
+      playBtn?.classList.remove('is-concealed');
+
+      const resetMobileCinematic = () => {
+        try {
+          video.pause();
+          video.currentTime = 0;
+        } catch (e) { /* ignore */ }
+        playBtn?.classList.remove('is-concealed');
+      };
+
+      const onPlayClick = () => {
+        playCinematicFromStart(video);
+        playBtn?.classList.add('is-concealed');
+      };
+
+      playBtn?.addEventListener('click', onPlayClick);
+
+      const visibilityST = ScrollTrigger.create({
+        trigger: cinematicSection || pin,
+        start: 'top bottom',
+        end: 'bottom top',
+        invalidateOnRefresh: true,
+        onLeave: resetMobileCinematic,
+        onLeaveBack: resetMobileCinematic
+      });
+
+      return function cleanupCinematicMobile() {
+        playBtn?.removeEventListener('click', onPlayClick);
+        visibilityST.kill();
+        video.preload = 'auto';
+        playBtn?.classList.remove('is-concealed');
+      };
     }
   });
-
-  tl.fromTo(
-    stage,
-    { scale: startScale, transformOrigin: '50% 50%' },
-    { scale: 1, ease: 'power2.out', duration: videoTweenDur },
-    0
-  );
-
-  if (copyLead && copyTrail && !isMobile) {
-    tl.fromTo(
-      copyLead,
-      {
-        x: () => textShiftX(),
-        scale: 0.94,
-        yPercent: -50,
-        transformOrigin: 'left center',
-        force3D: true
-      },
-      {
-        x: 0,
-        scale: 1,
-        yPercent: -50,
-        ease: 'power1.inOut',
-        duration: videoTweenDur,
-        force3D: true
-      },
-      0
-    ).fromTo(
-      copyTrail,
-      {
-        x: () => -textShiftX(),
-        scale: 0.94,
-        yPercent: -50,
-        transformOrigin: 'right center',
-        force3D: true
-      },
-      {
-        x: 0,
-        scale: 1,
-        yPercent: -50,
-        ease: 'power1.inOut',
-        duration: videoTweenDur,
-        force3D: true
-      },
-      0
-    );
-  } else if (copyLead && copyTrail) {
-    gsap.set([copyLead, copyTrail], { clearProps: 'transform' });
-  }
 }
 
 // ===== SECTION REVEAL ANIMATIONS — Varied per data-anim =====

@@ -630,12 +630,18 @@ body.is-intro-active .grain-overlay {
 }
 
 @media (max-width: 768px) {
+  .footer-statue-video-plane {
+    transform: translateZ(0);
+  }
+
   .footer-statue-canvas-el {
     top: 0;
     width: 145%;
     height: 100%;
     object-position: 30% 48%;
     transform: translate3d(-26%, 0, 0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
 }
 
@@ -1816,6 +1822,55 @@ body.is-intro-active .grain-overlay {
   object-fit: cover;
 }
 
+/* Mobil: Tap-to-Play (Desktop-Button ausgeblendet) */
+.cinematic-mobile-play {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cinematic-mobile-play:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.cinematic-mobile-play:focus-visible {
+  outline: 2px solid rgba(243, 240, 236, 0.9);
+  outline-offset: 4px;
+}
+
+.cinematic-mobile-play__ring {
+  position: absolute;
+  width: clamp(3.25rem, 17vw, 4.25rem);
+  height: clamp(3.25rem, 17vw, 4.25rem);
+  border-radius: 50%;
+  border: 1px solid rgba(243, 240, 236, 0.48);
+  background: transparent;
+  box-shadow: 0 2px 20px rgba(11, 16, 18, 0.25);
+  pointer-events: none;
+}
+
+.cinematic-mobile-play__tri {
+  position: relative;
+  z-index: 1;
+  width: 0;
+  height: 0;
+  margin-left: 0.3rem;
+  border-style: solid;
+  border-width: 0.72rem 0 0.72rem 1.2rem;
+  border-color: transparent transparent transparent rgba(243, 240, 236, 0.92);
+  filter: drop-shadow(0 1px 10px rgba(11, 16, 18, 0.4));
+  pointer-events: none;
+}
+
 @media (min-width: 769px) {
   @media (prefers-reduced-motion: reduce) {
     .cinematic-copy-follow .cinematic-copy--lead,
@@ -1892,10 +1947,20 @@ body.is-intro-active .grain-overlay {
     top: auto;
   }
 
+  .cinematic-mobile-play {
+    display: flex;
+  }
+
+  .cinematic-mobile-play.is-concealed {
+    display: none;
+    pointer-events: none;
+  }
+
   .cinematic-stage {
     width: min(92vw, calc(100% - 1.5rem));
     height: min(56dvh, 62vh);
     max-height: 520px;
+    will-change: auto;
   }
 }
 
@@ -2799,6 +2864,11 @@ body.is-intro-active .grain-overlay {
 }
 
 /* ===== LEGAL PAGES (Impressum / Datenschutz) ===== */
+body:has(.legal-header) {
+  background: var(--bg-dark);
+  color: var(--text-on-dark);
+}
+
 .legal-skip {
   position: absolute;
   left: -9999px;
@@ -2828,8 +2898,17 @@ body.is-intro-active .grain-overlay {
   min-height: var(--header-height);
   display: flex;
   align-items: center;
-  background: var(--bg-light);
-  border-bottom: 1px solid rgba(26, 28, 30, 0.1);
+  background: var(--bg-dark);
+  border-bottom: 1px solid rgba(243, 240, 236, 0.08);
+}
+
+.legal-header .header-logo {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 3vw, 1.35rem);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--text-on-dark);
+  text-decoration: none;
 }
 
 .legal-header-inner {
@@ -2849,21 +2928,21 @@ body.is-intro-active .grain-overlay {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  color: var(--text-muted);
+  color: rgba(243, 240, 236, 0.75);
   text-decoration: none;
-  border-bottom: 1px solid rgba(107, 110, 114, 0.35);
+  border-bottom: 1px solid rgba(243, 240, 236, 0.25);
   padding-bottom: 2px;
   transition: color 0.25s ease, border-color 0.25s ease;
 }
 
 .legal-back:hover,
 .legal-back:focus-visible {
-  color: var(--text-on-light);
-  border-bottom-color: var(--text-on-light);
+  color: var(--text-on-dark);
+  border-bottom-color: rgba(243, 240, 236, 0.5);
 }
 
 .legal-back:focus-visible {
-  outline: 2px solid var(--text-on-light);
+  outline: 2px solid var(--text-on-dark);
   outline-offset: 4px;
 }
 
@@ -2871,7 +2950,7 @@ body.is-intro-active .grain-overlay {
   position: relative;
   z-index: 3;
   padding: clamp(2.5rem, 5vw, 4rem) 5vw clamp(4rem, 8vw, 6rem);
-  background: var(--bg-light);
+  background: var(--bg-dark);
   min-height: 50vh;
 }
 
@@ -2885,7 +2964,7 @@ body.is-intro-active .grain-overlay {
   font-size: clamp(1.75rem, 4vw, 2.5rem);
   font-weight: 600;
   letter-spacing: 0.06em;
-  color: var(--text-on-light);
+  color: var(--text-on-dark);
   margin-bottom: 0.35rem;
 }
 
@@ -2895,10 +2974,10 @@ body.is-intro-active .grain-overlay {
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  color: var(--text-muted);
+  color: rgba(243, 240, 236, 0.55);
   margin-bottom: 2.5rem;
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(26, 28, 30, 0.12);
+  border-bottom: 1px solid rgba(243, 240, 236, 0.12);
 }
 
 .legal-doc h2 {
@@ -2906,7 +2985,7 @@ body.is-intro-active .grain-overlay {
   font-size: 1.15rem;
   font-weight: 600;
   letter-spacing: 0.04em;
-  color: var(--text-on-light);
+  color: var(--text-on-dark);
   margin-top: 2.25rem;
   margin-bottom: 0.85rem;
 }
@@ -2921,8 +3000,8 @@ body.is-intro-active .grain-overlay {
   font-size: var(--prose-size);
   line-height: var(--prose-lh);
   letter-spacing: var(--prose-track);
-  color: var(--text-on-light);
-  opacity: 0.88;
+  color: rgba(243, 240, 236, 0.95);
+  opacity: 1;
 }
 
 .legal-doc p {
@@ -2938,18 +3017,18 @@ body.is-intro-active .grain-overlay {
 }
 
 .legal-doc a {
-  color: var(--accent-terra);
+  color: var(--accent-gold);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 
 .legal-doc a:hover,
 .legal-doc a:focus-visible {
-  color: var(--text-on-light);
+  color: var(--text-on-dark);
 }
 
 .legal-doc a:focus-visible {
-  outline: 2px solid var(--text-on-light);
+  outline: 2px solid var(--text-on-dark);
   outline-offset: 3px;
 }
 
@@ -2957,7 +3036,7 @@ body.is-intro-active .grain-overlay {
   font-style: normal;
   margin-bottom: 1rem;
   line-height: 1.75;
-  color: var(--text-muted);
+  color: rgba(243, 240, 236, 0.92);
 }
 
 .legal-footer {
@@ -3091,7 +3170,10 @@ body.is-intro-active .grain-overlay {
   .hero-content {
     padding: clamp(1.5rem, 4vh, 2.5rem) clamp(1.35rem, 4vw, 2rem);
     padding-bottom: calc(var(--dock-safe-bottom) + 2.75rem);
-    justify-content: center;
+    padding-top: clamp(4.5rem, 18svh, 6.75rem);
+    justify-content: flex-start;
+    min-height: 100vh;
+    min-height: 100svh;
   }
 
   .hero-copy {
