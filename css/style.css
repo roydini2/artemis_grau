@@ -3178,12 +3178,17 @@ body:has(.legal-header) {
     object-position: 72% 42%;
   }
 
+  /* dvh/vh der kleinen Viewport-Achse springt mit der Browserleiste → zentrierter Text wackelt. Nur svh. */
   .hero-content {
-    padding: clamp(1.5rem, 4vh, 2.5rem) clamp(1.35rem, 4vw, 2rem);
+    padding: clamp(1.5rem, 4svh, 2.5rem) clamp(1.35rem, 4vw, 2rem);
     padding-bottom: calc(var(--dock-safe-bottom) + 2.75rem);
     justify-content: center;
     min-height: 100vh;
-    min-height: 100dvh;
+    min-height: 100svh;
+  }
+
+  .hero.hero--video {
+    min-height: clamp(155svh, 172svh, 195svh);
   }
 
   .hero-copy {
