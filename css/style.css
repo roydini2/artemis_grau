@@ -3167,9 +3167,12 @@ body:has(.legal-header) {
     transform: translateZ(0);
   }
 
-  /* Weniger „Zoom“ als Desktop (168%): mehr Motiv sichtbar; genug Höhe für Parallax. */
+  /*
+   * Höhe nicht als % der Plane: die Plane folgt inset:0 und wächst mit der Browser-UI → 128% recalculiert
+   * object-fit cover schlagartig. Stattdessen --hero-media-locked-h (px) einmalig in JS, nur bei Rotation/Breite neu.
+   */
   .hero-video-media {
-    height: 128%;
+    height: var(--hero-media-locked-h, 128%);
   }
 
   .hero-video {
