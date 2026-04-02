@@ -300,7 +300,7 @@ function initScrollChrome() {
   tick();
 }
 
-// ===== HERO PARALLAX — fixed plane; #hero-video-media langsamer (Desktop scrub 0.45; Mobil scrub true + y auf Pixel gerundet). =====
+// ===== HERO PARALLAX — wie Footer-Statue: Plane 100svh; ≤768px scrub true, invalidateOnRefresh aus, y px-gerundet. =====
 function initHeroParallax() {
   const hero = document.querySelector('.hero');
   const media = document.getElementById('hero-video-media');
@@ -329,7 +329,7 @@ function initHeroParallax() {
       start: 'top top',
       end: 'bottom top',
       scrub: heroParallaxMobile ? true : 0.45,
-      invalidateOnRefresh: true
+      invalidateOnRefresh: !heroParallaxMobile
     }
   };
   if (heroParallaxMobile) {
