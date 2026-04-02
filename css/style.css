@@ -603,9 +603,7 @@ body.is-intro-active .grain-overlay {
 .footer-statue-video-plane {
   position: fixed;
   inset: 0;
-  width: 100%;
-  height: 100vh;
-  height: 100svh;
+  /* Keine feste height/svh: sonst kürzer als die wachsende Mobile-Viewport → heller Body-Balken unten. */
   z-index: 1;
   opacity: 0;
   pointer-events: none;
@@ -630,7 +628,6 @@ body.is-intro-active .grain-overlay {
 }
 
 @media (max-width: 768px) {
-  /* Eigene Layer + Hardware-Beschleunigung; Höhe kommt aus Basisregel (svh). */
   .footer-statue-video-plane {
     transform: translateZ(0);
   }
@@ -650,9 +647,7 @@ body.is-intro-active .grain-overlay {
 .hero-video-plane {
   position: fixed;
   inset: 0;
-  width: 100%;
-  height: 100vh;
-  height: 100svh;
+  /* Nur inset:0 = immer volle aktuelle Viewport-Fläche (kein svh-Cap). */
   overflow: hidden;
   z-index: 2;
   pointer-events: none;
@@ -3178,17 +3173,23 @@ body:has(.legal-header) {
     object-position: 72% 42%;
   }
 
-  /* dvh/vh der kleinen Viewport-Achse springt mit der Browserleiste → zentrierter Text wackelt. Nur svh. */
+  /*
+   * Text: kein flex-center (springt beim Lenis-Touch-Ende). Oben verankert + volle sichtbare Höhe:
+   * svh = Basis, lvh füllt, wenn die Leiste ausblendet (sonst unten Creme vom body durch).
+   */
   .hero-content {
     padding: clamp(1.5rem, 4svh, 2.5rem) clamp(1.35rem, 4vw, 2rem);
+    padding-top: clamp(4.25rem, 14svh, 6.75rem);
     padding-bottom: calc(var(--dock-safe-bottom) + 2.75rem);
-    justify-content: center;
+    justify-content: flex-start;
     min-height: 100vh;
     min-height: 100svh;
+    min-height: 100lvh;
   }
 
+  /* Kein Section-Hintergrund: der liegt über der fixen Plane (z) und würde das Bild verdecken. */
   .hero.hero--video {
-    min-height: clamp(155svh, 172svh, 195svh);
+    min-height: clamp(155lvh, 172lvh, 195lvh);
   }
 
   .hero-copy {
