@@ -10,10 +10,19 @@ const lenis = new Lenis({
   duration: 1.2,
   easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
   smoothWheel: true,
-  touchMultiplier: 1.5,
-  /* Mobil: Touch näher am nativen Scroll, weniger Nachschwingen beim Loslassen (Hero-Text). */
-  syncTouch: window.matchMedia('(max-width: 768px)').matches
+  touchMultiplier: 1.5
 });
+
+/* Pull-to-Refresh / natives Overscroll: Lenis touchmove ist passive:false und kann sonst preventDefault auslösen.
+   virtualScroll === false beendet die Verarbeitung ohne preventDefault (Lenis-Doku). */
+lenis.options.virtualScroll = ({ deltaY, event }) => {
+  if (!event?.type?.includes('touch')) return;
+  const limit = typeof lenis.limit === 'number' ? lenis.limit : 0;
+  const scroll = typeof lenis.scroll === 'number' ? lenis.scroll : 0;
+  const edge = 2;
+  if (scroll <= edge && deltaY < -0.5) return false;
+  if (limit > edge && scroll >= limit - edge && deltaY > 0.5) return false;
+};
 
 function syncScrollTop() {
   window.scrollTo(0, 0);
@@ -223,6 +232,49 @@ function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+/** Wartet auf Hero-WebP (load + decode), damit nach dem Preloader kein spätes Nachziehen hackt. Kein Bild-Resize — nur Timing. */
+function waitForHeroImage(maxWaitMs = 14000) {
+  const img = document.querySelector('.hero-video');
+  if (!img) return Promise.resolve();
+
+  const decodeIfPossible = () => {
+    if (typeof img.decode === 'function') {
+      return img.decode().catch(() => {});
+    }
+    return Promise.resolve();
+  };
+
+  if (img.complete && img.naturalWidth > 0) {
+    return decodeIfPossible();
+  }
+
+  return new Promise((resolve) => {
+    const done = () => {
+      decodeIfPossible().finally(resolve);
+    };
+    const failSafe = setTimeout(done, maxWaitMs);
+    const cleanup = () => {
+      clearTimeout(failSafe);
+    };
+    img.addEventListener(
+      'load',
+      () => {
+        cleanup();
+        done();
+      },
+      { once: true }
+    );
+    img.addEventListener(
+      'error',
+      () => {
+        cleanup();
+        resolve();
+      },
+      { once: true }
+    );
+  });
+}
+
 async function playPostPreloaderPageReveal() {
   const smooth = document.getElementById('smooth-content');
   const plane = document.getElementById('hero-video-plane');
@@ -230,7 +282,8 @@ async function playPostPreloaderPageReveal() {
   const headerEl = document.getElementById('site-header');
   const fabCall = document.querySelector('.fab-container .fab--call');
 
-  const layers = [smooth, plane, headerEl, fabCall].filter(Boolean);
+  /* Plane zuerst: Hero liegt unter dem CTA; bei frühem smooth-content sieht backdrop-filter lange „leer“ aus. */
+  const layers = [plane, smooth, headerEl, fabCall].filter(Boolean);
 
   const finishIntro = () => {
     document.body.classList.remove('is-intro-active');
@@ -253,7 +306,7 @@ async function playPostPreloaderPageReveal() {
     tl.fromTo(
       layers,
       { opacity: 0, y: 44 },
-      { opacity: 1, y: 0, duration: 1.05, ease: 'power3.out', stagger: 0.07 },
+      { opacity: 1, y: 0, duration: 0.95, ease: 'power3.out', stagger: 0.05 },
       0
     );
 
@@ -273,10 +326,29 @@ async function initPreloader() {
   const bar = document.getElementById('preloader-bar');
   const percent = document.getElementById('preloader-percent');
 
-  if (bar) bar.style.width = '100%';
-  if (percent) percent.textContent = '100';
+  const setProgress = (p) => {
+    const v = Math.min(100, Math.max(0, p));
+    if (bar) bar.style.width = `${v}%`;
+    if (percent) percent.textContent = String(Math.round(v));
+  };
 
-  await new Promise((r) => setTimeout(r, 300));
+  let barVal = 0;
+  const barTimer = setInterval(() => {
+    if (barVal < 90) {
+      barVal += (90 - barVal) * 0.06 + 0.35;
+      setProgress(barVal);
+    }
+  }, 48);
+
+  await Promise.all([
+    waitForHeroImage(),
+    new Promise((r) => setTimeout(r, 420)),
+  ]);
+
+  clearInterval(barTimer);
+  setProgress(100);
+
+  await new Promise((r) => setTimeout(r, 220));
   if (preloader) preloader.classList.add('done');
   await new Promise((r) => setTimeout(r, 800));
   if (preloader) preloader.style.display = 'none';

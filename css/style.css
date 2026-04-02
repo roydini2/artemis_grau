@@ -776,18 +776,21 @@ body.is-intro-active .grain-overlay {
   text-transform: uppercase;
   letter-spacing: 0.2em;
   color: var(--text-on-dark);
-  background: rgba(243, 240, 236, 0.08);
-  border: 1px solid rgba(243, 240, 236, 0.22);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  /* Etwas dichtere Grundfüllung: wirkt sofort „milchig“, backdrop-filter verstärkt nur noch. */
+  background: rgba(243, 240, 236, 0.16);
+  border: 1px solid rgba(243, 240, 236, 0.28);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transform: translateZ(0);
+  isolation: isolate;
   padding: 0.95rem 2.35rem;
   text-decoration: none;
   transition: background 0.25s ease, border-color 0.25s ease;
 }
 
 .hero-cta:hover {
-  background: rgba(243, 240, 236, 0.16);
-  border-color: rgba(243, 240, 236, 0.4);
+  background: rgba(243, 240, 236, 0.22);
+  border-color: rgba(243, 240, 236, 0.45);
 }
 
 .hero-cta:focus-visible {

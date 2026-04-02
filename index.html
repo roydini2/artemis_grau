@@ -19,7 +19,7 @@
   <link rel="preload" href="public/fonts/cinzel-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="public/fonts/dmsans-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="public/fonts/greek-stone.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="public/images/hero-image.webp" as="image" type="image/webp">
+  <link rel="preload" href="public/images/hero-image.webp" as="image" type="image/webp" fetchpriority="high">
 
   <meta property="og:url" content="https://restaurant-artemis-berlin.de/">
   <meta property="og:site_name" content="Restaurant Artemis">
@@ -149,7 +149,7 @@
         width="2235"
         height="1241"
         alt="Griechische Küche und Grillgerichte im Restaurant Artemis"
-        decoding="async"
+        decoding="sync"
         fetchpriority="high"
       >
       <div class="hero-overlay"></div>
