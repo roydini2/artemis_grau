@@ -1,5 +1,7 @@
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
+gsap.registerPlugin(ScrollTrigger);
+
 // ===== DOM =====
 const header = document.getElementById('site-header');
 const menuToggle = document.getElementById('menu-toggle');
@@ -330,6 +332,8 @@ async function playPostPreloaderPageReveal() {
   const finishIntro = () => {
     document.body.classList.remove('is-intro-active');
     gsap.set([...layers, grain].filter(Boolean), { clearProps: 'opacity,transform' });
+    /* Nach Slide-in: Lenis-Dimensionen neu, sonst erste ST-Messung und Scroll leicht versetzt (Webview/Mobil). */
+    if (typeof lenis.resize === 'function') lenis.resize();
   };
 
   if (prefersReducedMotion()) {
@@ -393,7 +397,8 @@ async function initPreloader() {
   await new Promise((r) => setTimeout(r, 220));
   if (preloader) preloader.classList.add('done');
   await new Promise((r) => setTimeout(r, 800));
-  if (preloader) preloader.style.display = 'none';
+  /* Aus dem Layout entfernen (nicht nur display:none): vermeidet Rest-Box/Webview-Mess-Artefakte. */
+  if (preloader?.parentNode) preloader.remove();
 
   await playPostPreloaderPageReveal();
 }
@@ -1030,6 +1035,26 @@ function initBackToTop() {
   });
 }
 
+function configureScrollTriggerGlobals() {
+  const narrow = window.matchMedia('(max-width: 768px)').matches;
+  ScrollTrigger.config({
+    ignoreMobileResize: narrow,
+    anticipatePin: 1
+  });
+}
+
+/** Nach Preloader + Intro: Scroll/Lenis und ST auf dasselbe Layout bringen (verhindert initialen „Hüpfer“ bei Pins). */
+async function refreshScrollLayoutAfterBoot() {
+  syncScrollTop();
+  if (typeof lenis.resize === 'function') lenis.resize();
+  await new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(resolve));
+  });
+  ScrollTrigger.refresh();
+  await new Promise((r) => setTimeout(r, 48));
+  ScrollTrigger.refresh();
+}
+
 // ===== RESIZE =====
 let resizeTimer = null;
 let invalidateFooterStatueFrames = () => {};
@@ -1059,6 +1084,12 @@ async function init() {
 
   await initPreloader();
 
+  configureScrollTriggerGlobals();
+  window.matchMedia('(max-width: 768px)').addEventListener('change', () => {
+    configureScrollTriggerGlobals();
+    ScrollTrigger.refresh();
+  });
+
   initHeroParallax();
   initCinematicVideo();
   initFooterStatueFrameScroll();
@@ -1087,9 +1118,7 @@ async function init() {
 
   window.addEventListener('resize', onResize);
 
-  requestAnimationFrame(() => {
-    ScrollTrigger.refresh();
-  });
+  await refreshScrollLayoutAfterBoot();
 
   window.addEventListener('orientationchange', () => {
     setTimeout(() => {
