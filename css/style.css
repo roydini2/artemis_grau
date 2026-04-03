@@ -788,13 +788,16 @@ html.hero-mobile-desktop-site .preloader {
 html.hero-mobile-desktop-site .cinematic-scene {
   display: grid;
   grid-template-columns: 1fr;
+  grid-template-rows: auto auto 1fr auto;
   justify-items: center;
-  align-content: start;
-  gap: clamp(0.55rem, 2.2vw, 0.9rem);
-  padding: clamp(1rem, 4vw, 1.5rem) 1.25rem;
-  padding-bottom: calc(var(--dock-safe-bottom) + 0.85rem);
+  align-content: stretch;
+  gap: clamp(0.5rem, 2vw, 0.85rem);
+  row-gap: clamp(0.45rem, 1.8vw, 0.75rem);
+  padding: clamp(1.1rem, 4vw, 1.6rem) clamp(1.1rem, 5vw, 1.5rem);
+  padding-bottom: calc(var(--dock-safe-bottom) + 1rem);
   box-sizing: border-box;
   min-height: 100svh;
+  min-height: 100dvh;
   overflow: visible;
 }
 
@@ -813,23 +816,37 @@ html.hero-mobile-desktop-site .cinematic-copy--kicker {
   max-width: 22rem;
   text-align: center;
   text-shadow: 0 1px 16px rgba(11, 16, 18, 0.5);
+  margin-bottom: 0.35rem;
+  padding-bottom: 0.65rem;
+}
+
+html.hero-mobile-desktop-site .cinematic-copy--kicker.label::after {
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 html.hero-mobile-desktop-site .cinematic-copy--lead {
   position: static;
   grid-row: 2;
   width: 100%;
-  max-width: min(22rem, 92vw);
-  margin: 0;
+  max-width: min(22rem, 100%);
+  margin: 0 0 clamp(0.35rem, 2vw, 0.65rem);
   text-align: center;
   transform: none !important;
   text-shadow: 0 1px 18px rgba(11, 16, 18, 0.45);
+}
+
+html.hero-mobile-desktop-site .cinematic-copy--lead .heading--cinematic {
+  margin-bottom: 0;
+  line-height: 1.08;
 }
 
 html.hero-mobile-desktop-site .cinematic-stage-outer {
   position: static;
   grid-row: 3;
   width: 100%;
+  min-height: 0;
+  align-self: stretch;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -840,14 +857,22 @@ html.hero-mobile-desktop-site .cinematic-copy--trail {
   position: static;
   grid-row: 4;
   width: 100%;
-  max-width: min(22rem, 92vw);
-  margin: 0;
-  padding: 0 0.25rem;
+  max-width: 100%;
+  margin: clamp(0.65rem, 2.5vw, 1.1rem) 0 0;
+  padding: 0;
   text-align: center;
   transform: none !important;
   right: auto;
   left: auto;
   top: auto;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
+html.hero-mobile-desktop-site .cinematic-copy--trail a {
+  overflow-wrap: anywhere;
 }
 
 html.hero-mobile-desktop-site .cinematic-mobile-play {
@@ -861,8 +886,8 @@ html.hero-mobile-desktop-site .cinematic-mobile-play.is-concealed {
 
 html.hero-mobile-desktop-site .cinematic-stage {
   width: min(92vw, calc(100% - 1.5rem));
-  height: min(56svh, 62svh);
-  max-height: 520px;
+  height: min(52svh, 58svh);
+  max-height: 480px;
   will-change: auto;
 }
 
@@ -2096,14 +2121,17 @@ html.hero-mobile-desktop-site .scroll-zone--reviews-statue {
   .cinematic-scene {
     display: grid;
     grid-template-columns: 1fr;
+    grid-template-rows: auto auto 1fr auto;
     justify-items: center;
-    align-content: start;
-    gap: clamp(0.55rem, 2.2vw, 0.9rem);
-    padding: clamp(1rem, 4vw, 1.5rem) 1.25rem;
-    padding-bottom: calc(var(--dock-safe-bottom) + 0.85rem);
+    align-content: stretch;
+    gap: clamp(0.5rem, 2vw, 0.85rem);
+    row-gap: clamp(0.45rem, 1.8vw, 0.75rem);
+    padding: clamp(1.1rem, 4vw, 1.6rem) clamp(1.1rem, 5vw, 1.5rem);
+    padding-bottom: calc(var(--dock-safe-bottom) + 1rem);
     box-sizing: border-box;
     min-height: 100vh;
     min-height: 100svh;
+    min-height: 100dvh;
     overflow: visible;
   }
 
@@ -2122,23 +2150,37 @@ html.hero-mobile-desktop-site .scroll-zone--reviews-statue {
     max-width: 22rem;
     text-align: center;
     text-shadow: 0 1px 16px rgba(11, 16, 18, 0.5);
+    margin-bottom: 0.35rem;
+    padding-bottom: 0.65rem;
+  }
+
+  .cinematic-copy--kicker.label::after {
+    left: 50%;
+    transform: translateX(-50%);
   }
 
   .cinematic-copy--lead {
     position: static;
     grid-row: 2;
     width: 100%;
-    max-width: min(22rem, 92vw);
-    margin: 0;
+    max-width: min(22rem, 100%);
+    margin: 0 0 clamp(0.35rem, 2vw, 0.65rem);
     text-align: center;
     transform: none !important;
     text-shadow: 0 1px 18px rgba(11, 16, 18, 0.45);
+  }
+
+  .cinematic-copy--lead .heading--cinematic {
+    margin-bottom: 0;
+    line-height: 1.08;
   }
 
   .cinematic-stage-outer {
     position: static;
     grid-row: 3;
     width: 100%;
+    min-height: 0;
+    align-self: stretch;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -2149,14 +2191,22 @@ html.hero-mobile-desktop-site .scroll-zone--reviews-statue {
     position: static;
     grid-row: 4;
     width: 100%;
-    max-width: min(22rem, 92vw);
-    margin: 0;
-    padding: 0 0.25rem;
+    max-width: 100%;
+    margin: clamp(0.65rem, 2.5vw, 1.1rem) 0 0;
+    padding: 0;
     text-align: center;
     transform: none !important;
     right: auto;
     left: auto;
     top: auto;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    hyphens: auto;
+  }
+
+  .cinematic-copy--trail a {
+    overflow-wrap: anywhere;
   }
 
   .cinematic-mobile-play {
@@ -2170,8 +2220,8 @@ html.hero-mobile-desktop-site .scroll-zone--reviews-statue {
 
   .cinematic-stage {
     width: min(92vw, calc(100% - 1.5rem));
-    height: min(56svh, 62vh);
-    max-height: 520px;
+    height: min(52svh, 58vh);
+    max-height: 480px;
     will-change: auto;
   }
 }
