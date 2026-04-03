@@ -423,16 +423,12 @@ function initHeroParallax() {
       trigger: hero,
       start: 'top top',
       end: () => getHeroParallaxScrollEnd(),
+      /* Touch: fixe Scroll-Distanz + Media-Lock verringern Sprünge; Parallax bleibt aktiv. */
       scrub: touchHero ? 0.65 : 0.45,
       invalidateOnRefresh: !touchHero
     }
   };
-  /* Touch (inkl. Desktop-Site am Handy): kein Y-Parallax — vermeidet Zoom-/Crop-Sprung bei UI-Leiste. */
-  if (touchHero) {
-    gsap.set(media, { y: 0, clearProps: 'transform' });
-  } else {
-    gsap.fromTo(media, { y: 0 }, parallaxEnd);
-  }
+  gsap.fromTo(media, { y: 0 }, parallaxEnd);
 
   ScrollTrigger.create({
     trigger: hero,
