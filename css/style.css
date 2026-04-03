@@ -277,13 +277,12 @@ body.is-intro-active {
   background-color: var(--bg-dark);
 }
 
-/* Nach Preloader: Inhalt kommt von unten + blendet ein (kein Wrapper-Transform, damit fixed-Layer korrekt bleiben). */
+/* Während Preloader: Inhalt unsichtbar (kein Transform — weniger ST/Lenis-Artefakte). */
 body.is-intro-active #smooth-content,
 body.is-intro-active #hero-video-plane,
 body.is-intro-active #site-header,
 body.is-intro-active .fab-container .fab--call {
   opacity: 0;
-  transform: translateY(44px);
 }
 
 body.is-intro-active .grain-overlay {
@@ -296,7 +295,6 @@ body.is-intro-active .grain-overlay {
   body.is-intro-active #site-header,
   body.is-intro-active .fab-container .fab--call {
     opacity: 1;
-    transform: none;
   }
 
   body.is-intro-active .grain-overlay {
@@ -676,6 +674,19 @@ body.is-intro-active .grain-overlay {
   object-fit: cover;
 }
 
+/* Touch inkl. „Desktop-Website“ (Breite >768): gleicher Media-Lock wie schmale Viewports (JS setzt --hero-media-locked-h). */
+@media (pointer: coarse) {
+  .hero-video-plane {
+    transform: translateZ(0);
+    min-height: 100dvh;
+    min-height: 100lvh;
+  }
+
+  .hero-video-media {
+    height: var(--hero-media-locked-h, 135%);
+  }
+}
+
 .hero-overlay {
   position: absolute;
   inset: 0;
@@ -779,11 +790,11 @@ body.is-intro-active .grain-overlay {
   text-transform: uppercase;
   letter-spacing: 0.2em;
   color: var(--text-on-dark);
-  /* Etwas dichtere Grundfüllung: wirkt sofort „milchig“, backdrop-filter verstärkt nur noch. */
-  background: rgba(243, 240, 236, 0.16);
-  border: 1px solid rgba(243, 240, 236, 0.28);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  /* Deckend genug für sofort lesbare „Milchglas“-Wirkung; Blur nur noch Feinschliff. */
+  background: rgba(243, 240, 236, 0.32);
+  border: 1px solid rgba(243, 240, 236, 0.42);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   transform: translateZ(0);
   isolation: isolate;
   padding: 0.95rem 2.35rem;
@@ -792,8 +803,8 @@ body.is-intro-active .grain-overlay {
 }
 
 .hero-cta:hover {
-  background: rgba(243, 240, 236, 0.22);
-  border-color: rgba(243, 240, 236, 0.45);
+  background: rgba(243, 240, 236, 0.4);
+  border-color: rgba(243, 240, 236, 0.52);
 }
 
 .hero-cta:focus-visible {

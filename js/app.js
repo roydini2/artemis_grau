@@ -240,9 +240,16 @@ let heroParallaxTravelPx =
  */
 let heroParallaxScrollRangePx = 720;
 
-/** Mobil: Travel, Scroll-Range und Media-Höhe an **einem** Viewport-Snapshot — nicht bei load/refresh neu aus live vh. */
-function applyHeroMobileLayoutLock() {
-  if (!window.matchMedia('(max-width: 768px)').matches) return;
+function heroUsesTouchFrozenLayout() {
+  return (
+    window.matchMedia('(max-width: 768px)').matches ||
+    window.matchMedia('(pointer: coarse)').matches
+  );
+}
+
+/** Touch / schmale Viewport: Travel, Scroll-Range, Media-Höhe fest — inkl. „Desktop-Ansicht“ am Handy (Breite >768). */
+function applyHeroTouchLayoutLock() {
+  if (!heroUsesTouchFrozenLayout()) return;
   const el = document.querySelector('.hero');
   const plane = document.getElementById('hero-video-plane');
   const vh = window.visualViewport?.height ?? window.innerHeight;
@@ -256,9 +263,8 @@ function applyHeroMobileLayoutLock() {
 }
 
 function syncHeroParallaxMetrics() {
-  const mobile = window.matchMedia('(max-width: 768px)').matches;
   const plane = document.getElementById('hero-video-plane');
-  if (mobile) {
+  if (heroUsesTouchFrozenLayout()) {
     return;
   }
   heroParallaxTravelPx =
@@ -267,13 +273,9 @@ function syncHeroParallaxMetrics() {
 }
 
 function getHeroParallaxScrollEnd() {
-  return window.matchMedia('(max-width: 768px)').matches
+  return heroUsesTouchFrozenLayout()
     ? `+=${heroParallaxScrollRangePx}`
     : 'bottom top';
-}
-
-function prefersReducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
 /** Wartet auf Hero-WebP (load + decode), damit nach dem Preloader kein spätes Nachziehen hackt. Kein Bild-Resize — nur Timing. */
@@ -319,52 +321,18 @@ function waitForHeroImage(maxWaitMs = 14000) {
   });
 }
 
-async function playPostPreloaderPageReveal() {
+/** Kein Fade/Slide nach Preloader — nur Klasse entfernen, GSAP-Reste löschen, Lenis neu messen. */
+function finishPreloaderReveal() {
   const smooth = document.getElementById('smooth-content');
   const plane = document.getElementById('hero-video-plane');
   const grain = document.querySelector('.grain-overlay');
   const headerEl = document.getElementById('site-header');
   const fabCall = document.querySelector('.fab-container .fab--call');
-
-  /* Plane zuerst: Hero liegt unter dem CTA; bei frühem smooth-content sieht backdrop-filter lange „leer“ aus. */
   const layers = [plane, smooth, headerEl, fabCall].filter(Boolean);
-
-  const finishIntro = () => {
-    document.body.classList.remove('is-intro-active');
-    gsap.set([...layers, grain].filter(Boolean), { clearProps: 'opacity,transform' });
-    /* Nach Slide-in: Lenis-Dimensionen neu, sonst erste ST-Messung und Scroll leicht versetzt (Webview/Mobil). */
-    if (typeof lenis.resize === 'function') lenis.resize();
-  };
-
-  if (prefersReducedMotion()) {
-    finishIntro();
-    return;
-  }
-
-  await new Promise((resolve) => {
-    const tl = gsap.timeline({
-      onComplete: () => {
-        finishIntro();
-        resolve();
-      }
-    });
-
-    tl.fromTo(
-      layers,
-      { opacity: 0, y: 44 },
-      { opacity: 1, y: 0, duration: 0.95, ease: 'power3.out', stagger: 0.05 },
-      0
-    );
-
-    if (grain) {
-      tl.fromTo(
-        grain,
-        { opacity: 0 },
-        { opacity: 0.04, duration: 0.95, ease: 'power2.out' },
-        0
-      );
-    }
-  });
+  document.body.classList.remove('is-intro-active');
+  gsap.set([...layers, grain].filter(Boolean), { clearProps: 'opacity,transform' });
+  if (grain) gsap.set(grain, { opacity: 0.04 });
+  if (typeof lenis.resize === 'function') lenis.resize();
 }
 
 async function initPreloader() {
@@ -400,7 +368,7 @@ async function initPreloader() {
   /* Aus dem Layout entfernen (nicht nur display:none): vermeidet Rest-Box/Webview-Mess-Artefakte. */
   if (preloader?.parentNode) preloader.remove();
 
-  await playPostPreloaderPageReveal();
+  finishPreloaderReveal();
 }
 
 // ===== HEADER + FAB (one passive scroll pipeline) =====
@@ -428,9 +396,9 @@ function initHeroParallax() {
   const plane = document.getElementById('hero-video-plane');
   if (!hero || !media) return;
 
-  const heroParallaxMobile = window.matchMedia('(max-width: 768px)').matches;
-  if (heroParallaxMobile) {
-    applyHeroMobileLayoutLock();
+  const touchHero = heroUsesTouchFrozenLayout();
+  if (touchHero) {
+    applyHeroTouchLayoutLock();
   } else {
     syncHeroParallaxMetrics();
   }
@@ -455,12 +423,16 @@ function initHeroParallax() {
       trigger: hero,
       start: 'top top',
       end: () => getHeroParallaxScrollEnd(),
-      /* Mobil etwas weicher als Desktop: Touch liefert sprunghafte Deltas; numerisches scrub glättet ohne große Latenz. */
-      scrub: heroParallaxMobile ? 0.65 : 0.45,
-      invalidateOnRefresh: !heroParallaxMobile
+      scrub: touchHero ? 0.65 : 0.45,
+      invalidateOnRefresh: !touchHero
     }
   };
-  gsap.fromTo(media, { y: 0 }, parallaxEnd);
+  /* Touch (inkl. Desktop-Site am Handy): kein Y-Parallax — vermeidet Zoom-/Crop-Sprung bei UI-Leiste. */
+  if (touchHero) {
+    gsap.set(media, { y: 0, clearProps: 'transform' });
+  } else {
+    gsap.fromTo(media, { y: 0 }, parallaxEnd);
+  }
 
   ScrollTrigger.create({
     trigger: hero,
@@ -475,7 +447,7 @@ function initHeroParallax() {
   });
 
   requestAnimationFrame(() => {
-    if (!heroParallaxMobile) {
+    if (!touchHero) {
       syncHeroParallaxMetrics();
     }
     ScrollTrigger.refresh();
@@ -1036,9 +1008,8 @@ function initBackToTop() {
 }
 
 function configureScrollTriggerGlobals() {
-  const narrow = window.matchMedia('(max-width: 768px)').matches;
   ScrollTrigger.config({
-    ignoreMobileResize: narrow,
+    ignoreMobileResize: false,
     anticipatePin: 1
   });
 }
@@ -1066,8 +1037,8 @@ function onResize() {
 
   clearTimeout(resizeTimer);
   resizeTimer = setTimeout(() => {
-    if (window.matchMedia('(max-width: 768px)').matches) {
-      applyHeroMobileLayoutLock();
+    if (heroUsesTouchFrozenLayout()) {
+      applyHeroTouchLayoutLock();
     } else {
       syncHeroParallaxMetrics();
     }
@@ -1085,10 +1056,6 @@ async function init() {
   await initPreloader();
 
   configureScrollTriggerGlobals();
-  window.matchMedia('(max-width: 768px)').addEventListener('change', () => {
-    configureScrollTriggerGlobals();
-    ScrollTrigger.refresh();
-  });
 
   initHeroParallax();
   initCinematicVideo();
@@ -1103,7 +1070,7 @@ async function init() {
 
   window.addEventListener('load', () => {
     syncScrollTop();
-    if (!window.matchMedia('(max-width: 768px)').matches) {
+    if (!heroUsesTouchFrozenLayout()) {
       syncHeroParallaxMetrics();
     }
     ScrollTrigger.refresh();
@@ -1123,8 +1090,8 @@ async function init() {
   window.addEventListener('orientationchange', () => {
     setTimeout(() => {
       lastResizeWidth = document.documentElement.clientWidth;
-      if (window.matchMedia('(max-width: 768px)').matches) {
-        applyHeroMobileLayoutLock();
+      if (heroUsesTouchFrozenLayout()) {
+        applyHeroTouchLayoutLock();
       } else {
         syncHeroParallaxMetrics();
       }
