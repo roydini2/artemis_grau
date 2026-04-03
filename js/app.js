@@ -755,7 +755,9 @@ function initFooterStatueFrameScroll() {
       canvas.width = first.naturalWidth;
       canvas.height = first.naturalHeight;
 
-      const statueNarrowViewport = window.matchMedia('(max-width: 768px)').matches;
+      const statueNarrowViewport =
+        window.matchMedia('(max-width: 768px)').matches ||
+        likelyCompactScreenWithWideLayoutViewport();
 
       const setWrapOpacityFromSt = (active) => {
         wrap.style.opacity = active ? '1' : '0';
@@ -865,132 +867,144 @@ function initCinematicVideo() {
   const videoTweenDur = 1;
   const textShiftX = () => Math.min(window.innerWidth * 0.032, 48);
 
-  ScrollTrigger.matchMedia({
-    '(min-width: 769px)': function setupCinematicDesktop() {
-      const startScale = 0.52;
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: pin,
-          start: 'top top',
-          end: '+=120%',
-          pin: true,
-          scrub: 0.55,
-          anticipatePin: 1,
-          invalidateOnRefresh: true
-        }
-      });
+  function setupCinematicDesktop() {
+    const startScale = 0.52;
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: pin,
+        start: 'top top',
+        end: '+=120%',
+        pin: true,
+        scrub: 0.55,
+        anticipatePin: 1,
+        invalidateOnRefresh: true
+      }
+    });
 
-      const visibilityST = ScrollTrigger.create({
-        trigger: cinematicSection || pin,
-        start: 'top bottom',
-        end: 'bottom top',
-        invalidateOnRefresh: true,
-        onEnter: () => playCinematicFromStart(video),
-        onEnterBack: () => playCinematicFromStart(video),
-        onLeave: () => {
-          if (video) video.pause();
-        },
-        onLeaveBack: () => {
-          if (video) video.pause();
-        }
-      });
+    const visibilityST = ScrollTrigger.create({
+      trigger: cinematicSection || pin,
+      start: 'top bottom',
+      end: 'bottom top',
+      invalidateOnRefresh: true,
+      onEnter: () => playCinematicFromStart(video),
+      onEnterBack: () => playCinematicFromStart(video),
+      onLeave: () => {
+        if (video) video.pause();
+      },
+      onLeaveBack: () => {
+        if (video) video.pause();
+      }
+    });
 
+    tl.fromTo(
+      stage,
+      { scale: startScale, transformOrigin: '50% 50%' },
+      { scale: 1, ease: 'power2.out', duration: videoTweenDur },
+      0
+    );
+
+    if (copyLead && copyTrail) {
       tl.fromTo(
-        stage,
-        { scale: startScale, transformOrigin: '50% 50%' },
-        { scale: 1, ease: 'power2.out', duration: videoTweenDur },
+        copyLead,
+        {
+          x: () => textShiftX(),
+          scale: 0.94,
+          yPercent: -50,
+          transformOrigin: 'left center',
+          force3D: true
+        },
+        {
+          x: 0,
+          scale: 1,
+          yPercent: -50,
+          ease: 'power1.inOut',
+          duration: videoTweenDur,
+          force3D: true
+        },
+        0
+      ).fromTo(
+        copyTrail,
+        {
+          x: () => -textShiftX(),
+          scale: 0.94,
+          yPercent: -50,
+          transformOrigin: 'right center',
+          force3D: true
+        },
+        {
+          x: 0,
+          scale: 1,
+          yPercent: -50,
+          ease: 'power1.inOut',
+          duration: videoTweenDur,
+          force3D: true
+        },
         0
       );
+    }
 
-      if (copyLead && copyTrail) {
-        tl.fromTo(
-          copyLead,
-          {
-            x: () => textShiftX(),
-            scale: 0.94,
-            yPercent: -50,
-            transformOrigin: 'left center',
-            force3D: true
-          },
-          {
-            x: 0,
-            scale: 1,
-            yPercent: -50,
-            ease: 'power1.inOut',
-            duration: videoTweenDur,
-            force3D: true
-          },
-          0
-        ).fromTo(
-          copyTrail,
-          {
-            x: () => -textShiftX(),
-            scale: 0.94,
-            yPercent: -50,
-            transformOrigin: 'right center',
-            force3D: true
-          },
-          {
-            x: 0,
-            scale: 1,
-            yPercent: -50,
-            ease: 'power1.inOut',
-            duration: videoTweenDur,
-            force3D: true
-          },
-          0
-        );
-      }
+    return function cleanupCinematicDesktop() {
+      visibilityST.kill();
+      tl.scrollTrigger?.kill();
+      tl.kill();
+    };
+  }
 
-      return function cleanupCinematicDesktop() {
-        visibilityST.kill();
-        tl.scrollTrigger?.kill();
-        tl.kill();
-      };
-    },
-    '(max-width: 768px)': function setupCinematicMobile() {
-      video.preload = 'metadata';
+  function setupCinematicMobile() {
+    video.preload = 'metadata';
+    try {
+      video.pause();
+      video.currentTime = 0;
+    } catch (e) { /* ignore */ }
+
+    gsap.set(stage, { scale: 1, borderRadius: '0px', clearProps: 'will-change' });
+    if (copyLead && copyTrail) {
+      gsap.set([copyLead, copyTrail], { clearProps: 'transform' });
+    }
+    playBtn?.classList.remove('is-concealed');
+
+    const resetMobileCinematic = () => {
       try {
         video.pause();
         video.currentTime = 0;
       } catch (e) { /* ignore */ }
-
-      gsap.set(stage, { scale: 1, borderRadius: '0px', clearProps: 'will-change' });
-      if (copyLead && copyTrail) {
-        gsap.set([copyLead, copyTrail], { clearProps: 'transform' });
-      }
       playBtn?.classList.remove('is-concealed');
+    };
 
-      const resetMobileCinematic = () => {
-        try {
-          video.pause();
-          video.currentTime = 0;
-        } catch (e) { /* ignore */ }
-        playBtn?.classList.remove('is-concealed');
-      };
+    const onPlayClick = () => {
+      playCinematicFromStart(video);
+      playBtn?.classList.add('is-concealed');
+    };
 
-      const onPlayClick = () => {
-        playCinematicFromStart(video);
-        playBtn?.classList.add('is-concealed');
-      };
+    playBtn?.addEventListener('click', onPlayClick);
 
-      playBtn?.addEventListener('click', onPlayClick);
+    const visibilityST = ScrollTrigger.create({
+      trigger: cinematicSection || pin,
+      start: 'top bottom',
+      end: 'bottom top',
+      invalidateOnRefresh: true,
+      onLeave: resetMobileCinematic,
+      onLeaveBack: resetMobileCinematic
+    });
 
-      const visibilityST = ScrollTrigger.create({
-        trigger: cinematicSection || pin,
-        start: 'top bottom',
-        end: 'bottom top',
-        invalidateOnRefresh: true,
-        onLeave: resetMobileCinematic,
-        onLeaveBack: resetMobileCinematic
-      });
+    return function cleanupCinematicMobile() {
+      playBtn?.removeEventListener('click', onPlayClick);
+      visibilityST.kill();
+      video.preload = 'auto';
+      playBtn?.classList.remove('is-concealed');
+    };
+  }
 
-      return function cleanupCinematicMobile() {
-        playBtn?.removeEventListener('click', onPlayClick);
-        visibilityST.kill();
-        video.preload = 'auto';
-        playBtn?.classList.remove('is-concealed');
-      };
+  ScrollTrigger.matchMedia({
+    '(min-width: 769px)': function setupCinematicWideMin() {
+      /* Desktop-Ansicht am Phone: Breite >768, aber Pin+Scrub springt mit Adressleiste → wie schmales Mobile. */
+      if (likelyCompactScreenWithWideLayoutViewport()) {
+        return setupCinematicMobile();
+      }
+      return setupCinematicDesktop();
+    },
+    '(max-width: 768px)': function setupCinematicNarrow() {
+      return setupCinematicMobile();
     }
   });
 }
@@ -1077,13 +1091,15 @@ function initGalleryPairParallax() {
       start: 'top bottom',
       end: 'bottom top',
       scrub: true,
-      invalidateOnRefresh: true
+      invalidateOnRefresh: !likelyCompactScreenWithWideLayoutViewport()
     };
 
     const tl = gsap.timeline({ scrollTrigger: st });
 
     if (root.classList.contains('gallery-pair--editorial')) {
-      const isEditorialMobile = window.matchMedia('(max-width: 768px)').matches;
+      const isEditorialMobile =
+        window.matchMedia('(max-width: 768px)').matches ||
+        likelyCompactScreenWithWideLayoutViewport();
       if (isEditorialMobile) {
         const bAmp = 32;
         tl.fromTo(
@@ -1099,7 +1115,11 @@ function initGalleryPairParallax() {
         tl.fromTo(colA, { y: 0, force3D: true }, { y: drift, ease: 'none', duration: 1, force3D: true }, 0);
       }
     } else if (root.classList.contains('gallery-pair--feier-trio')) {
-      const feierM = window.matchMedia('(max-width: 768px)').matches ? 0.5 : 1;
+      const feierM =
+        window.matchMedia('(max-width: 768px)').matches ||
+        likelyCompactScreenWithWideLayoutViewport()
+          ? 0.5
+          : 1;
       tl.fromTo(
         colA,
         { y: 36 * feierM, force3D: true },

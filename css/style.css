@@ -703,6 +703,21 @@ html.hero-mobile-desktop-site .hero--video {
 
 html.hero-mobile-desktop-site .hero-content {
   min-height: 100svh;
+  justify-content: flex-start;
+  padding: clamp(4.25rem, 14svh, 6.75rem) clamp(2rem, 5vw, 5rem)
+    calc(var(--dock-safe-bottom) + 3rem);
+}
+
+html.hero-mobile-desktop-site .hero-stage2 {
+  padding: 0 clamp(2rem, 5vw, 5rem) clamp(14svh, 20vw, 24svh);
+}
+
+html.hero-mobile-desktop-site .scroll-zone {
+  padding-top: 30svh;
+}
+
+html.hero-mobile-desktop-site .scroll-zone-text {
+  top: 25svh;
 }
 
 html.hero-mobile-desktop-site .hero-video-plane {
