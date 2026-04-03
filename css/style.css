@@ -675,6 +675,16 @@ body.is-intro-active .grain-overlay {
 }
 
 /*
+ * Tablet (zwischen Phone und breitem Desktop): object-fit:cover schneidet seitlich stärker —
+ * Fokuspunkt nach rechts legen, damit der Teller wie auf Desktop sichtbar bleibt.
+ */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .hero-video {
+    object-position: 84% 42%;
+  }
+}
+
+/*
  * JS setzt html.hero-touch-stable bei Touchgerät (maxTouchPoints / schmal / coarse).
  * Nötig für „Desktop-Website“: dort oft pointer:fine + Breite >768, sonst greifen 168% + bottom top → Sprung bei UI-Leiste.
  */
@@ -970,18 +980,18 @@ html.hero-mobile-desktop-site .scroll-zone--reviews-statue {
 }
 
 .hero-title {
-  font-family: 'Greek Stone', var(--font-display);
-  font-size: clamp(3rem, 8vw, 5.75rem);
+  font-family: 'Greek Stone', Georgia, 'Times New Roman', serif;
+  font-size: clamp(2.85rem, 7.25vw, 5.35rem);
   font-weight: 400;
   line-height: 1.02;
-  letter-spacing: 0.14em;
-  color: var(--text-on-dark);
+  /* Mehr Luft: wirkt graziler; schwere Wort-Ligatur der Schrift abschalten → feinere Glyphen */
+  letter-spacing: 0.2em;
+  font-feature-settings: 'liga' 0, 'clig' 0, 'calt' 0;
+  color: rgba(243, 240, 236, 0.96);
   margin: 0 0 1.15rem;
-  display: flex;
-  flex-wrap: nowrap;
+  white-space: nowrap;
+  -webkit-font-smoothing: antialiased;
 }
-
-.hero-letter { display: inline-block; }
 
 .hero-subline {
   font-family: var(--font-prose);
@@ -3493,8 +3503,9 @@ body:has(.legal-header) {
   }
 
   .hero-title {
-    font-size: clamp(2.35rem, 11vw, 3.85rem);
-    letter-spacing: 0.1em;
+    font-size: clamp(2.2rem, 10.2vw, 3.55rem);
+    letter-spacing: 0.16em;
+    font-feature-settings: 'liga' 0, 'clig' 0, 'calt' 0;
   }
 
   .hero-cta {
