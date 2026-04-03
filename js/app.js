@@ -506,11 +506,11 @@ function finishPreloaderReveal() {
 
 /** Nach Intro: Galerie-URLs im Idle in den Cache legen (kein Preload im Head — LCP/Parser). Lazy <img> nutzt Cache beim Scrollen. */
 const GALLERY_WARMUP_SRCS = [
-  'public/images/hf_20260401_112814_bb9cb2e4-de00-431c-9b4e-a2ac51eeb50e.png',
-  'public/images/hf_20260401_112830_62cdfc50-46ea-41e5-ade4-21bcb3e68feb.png',
-  'public/images/feier/hf_20260401_112437_90efe0bf-d541-4057-82fa-e56047314bed.png',
+  'public/images/hf_20260401_112814_bb9cb2e4-de00-431c-9b4e-a2ac51eeb50e.webp',
+  'public/images/hf_20260401_112830_62cdfc50-46ea-41e5-ade4-21bcb3e68feb.webp',
+  'public/images/feier/hf_20260401_112437_90efe0bf-d541-4057-82fa-e56047314bed.webp',
   'public/images/terasse.webp',
-  'public/images/feier/hf_20260401_112505_ffe14f9c-c97c-4987-85fe-ffaac6b1e887.png'
+  'public/images/feier/hf_20260401_112505_ffe14f9c-c97c-4987-85fe-ffaac6b1e887.webp'
 ];
 
 function warmBelowFoldGalleryCaches() {
@@ -523,11 +523,8 @@ function warmBelowFoldGalleryCaches() {
       }
     });
   };
-  if (typeof requestIdleCallback === 'function') {
-    requestIdleCallback(run, { timeout: 4500 });
-  } else {
-    setTimeout(run, 600);
-  }
+  /* Kurz nach Intro: Galerie-WebPs (~1 MB statt ~10 MB PNG) früh in den Cache. */
+  setTimeout(run, 240);
 }
 
 async function initPreloader() {
