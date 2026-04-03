@@ -20,6 +20,13 @@
   <link rel="preload" href="public/fonts/dmsans-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="public/fonts/greek-stone.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="public/images/hero-image.webp" as="image" type="image/webp" fetchpriority="high">
+  <!-- Galerie Speisekarte / Feiern: früh laden, damit Scroll/Parallax nicht beim ersten Sichtbarwerden ruckelt -->
+  <link rel="preload" href="public/images/hf_20260401_112814_bb9cb2e4-de00-431c-9b4e-a2ac51eeb50e.png" as="image" type="image/png">
+  <link rel="preload" href="public/images/hf_20260401_112830_62cdfc50-46ea-41e5-ade4-21bcb3e68feb.png" as="image" type="image/png">
+  <link rel="preload" href="public/images/feier/hf_20260401_112437_90efe0bf-d541-4057-82fa-e56047314bed.png" as="image" type="image/png">
+  <link rel="preload" href="public/images/terasse.webp" as="image" type="image/webp">
+  <link rel="preload" href="public/images/feier/hf_20260401_112505_ffe14f9c-c97c-4987-85fe-ffaac6b1e887.png" as="image" type="image/png">
+  <link rel="preload" href="public/videos/artemis-mitte.webm" as="video" type="video/webm">
 
   <meta property="og:url" content="https://restaurant-artemis-berlin.de/">
   <meta property="og:site_name" content="Restaurant Artemis">
@@ -243,12 +250,12 @@
         <div class="gallery-pair gallery-pair--editorial" data-parallax-pair>
           <figure class="gallery-pair__col gallery-pair__col--a media-dim">
             <div class="gallery-pair__pan">
-              <img src="public/images/hf_20260401_112814_bb9cb2e4-de00-431c-9b4e-a2ac51eeb50e.png" alt="Griechische Küche und Grillgerichte im Restaurant Artemis" loading="lazy" width="1200" height="1600">
+              <img src="public/images/hf_20260401_112814_bb9cb2e4-de00-431c-9b4e-a2ac51eeb50e.png" alt="Griechische Küche und Grillgerichte im Restaurant Artemis" loading="eager" decoding="async" width="1200" height="1600">
             </div>
           </figure>
           <figure class="gallery-pair__col gallery-pair__col--b media-dim">
             <div class="gallery-pair__pan">
-              <img src="public/images/hf_20260401_112830_62cdfc50-46ea-41e5-ade4-21bcb3e68feb.png" alt="Speisen und Ambiente im Restaurant Artemis Berlin-Schöneweide" loading="lazy" width="1200" height="1600">
+              <img src="public/images/hf_20260401_112830_62cdfc50-46ea-41e5-ade4-21bcb3e68feb.png" alt="Speisen und Ambiente im Restaurant Artemis Berlin-Schöneweide" loading="eager" decoding="async" width="1200" height="1600">
             </div>
           </figure>
         </div>
@@ -347,17 +354,17 @@
           <div class="gallery-pair gallery-pair--feier-trio" data-parallax-pair>
             <figure class="gallery-pair__col gallery-pair__col--a media-dim">
               <div class="gallery-pair__pan">
-                <img src="public/images/feier/hf_20260401_112437_90efe0bf-d541-4057-82fa-e56047314bed.png" alt="Buffet und Festtafel für Feiern im Restaurant Artemis" loading="lazy" width="1200" height="1600">
+                <img src="public/images/feier/hf_20260401_112437_90efe0bf-d541-4057-82fa-e56047314bed.png" alt="Buffet und Festtafel für Feiern im Restaurant Artemis" loading="eager" decoding="async" width="1200" height="1600">
               </div>
             </figure>
             <figure class="gallery-pair__col gallery-pair__col--b media-dim gallery-pair__col--static">
               <div class="gallery-pair__pan">
-                <img src="public/images/terasse.webp" alt="Sommerterrasse des Restaurant Artemis an der Spree in Berlin" loading="lazy" width="1600" height="1067">
+                <img src="public/images/terasse.webp" alt="Sommerterrasse des Restaurant Artemis an der Spree in Berlin" loading="eager" decoding="async" width="1600" height="1067">
               </div>
             </figure>
             <figure class="gallery-pair__col gallery-pair__col--c media-dim">
               <div class="gallery-pair__pan">
-                <img src="public/images/feier/hf_20260401_112505_ffe14f9c-c97c-4987-85fe-ffaac6b1e887.png" alt="Griechisches Catering und Buffet für Ihre Veranstaltung" loading="lazy" width="1200" height="1600">
+                <img src="public/images/feier/hf_20260401_112505_ffe14f9c-c97c-4987-85fe-ffaac6b1e887.png" alt="Griechisches Catering und Buffet für Ihre Veranstaltung" loading="eager" decoding="async" width="1200" height="1600">
               </div>
             </figure>
           </div>

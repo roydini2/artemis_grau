@@ -2022,6 +2022,15 @@ html.hero-mobile-desktop-site .scroll-zone--reviews-statue {
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
   }
+
+  /*
+   * Text nicht mehr per Scroll-Scrub animiert — vertikal wie zuvor yPercent:-50.
+   * :not(.hero-mobile-desktop-site): dort Grid-Layout mit position:static.
+   */
+  html:not(.hero-mobile-desktop-site) .cinematic-copy-follow .cinematic-copy--lead,
+  html:not(.hero-mobile-desktop-site) .cinematic-copy-follow .cinematic-copy--trail {
+    transform: translateY(-50%);
+  }
 }
 
 .cinematic-video-el {

@@ -47,7 +47,8 @@ function setupLenisScroll() {
   }
 
   lenis = new Lenis({
-    duration: 1.2,
+    /* Etwas straffer = weniger „Gummiband“ gegen ScrollTrigger-Scrub (Cinematic-Pin). */
+    duration: 1,
     easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     smoothWheel: true,
     touchMultiplier: 1.5
@@ -865,18 +866,21 @@ function initCinematicVideo() {
   }
 
   const videoTweenDur = 1;
-  const textShiftX = () => Math.min(window.innerWidth * 0.032, 48);
 
   function setupCinematicDesktop() {
     const startScale = 0.52;
+    if (copyLead && copyTrail) {
+      gsap.set([copyLead, copyTrail], { clearProps: 'transform' });
+    }
+
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: pin,
         start: 'top top',
         end: '+=120%',
         pin: true,
-        /* Lenis interpoliert Scroll — zu enger scrub (0.55) ruckelt; etwas Nachlauf glättet die Timeline. */
-        scrub: 1.15,
+        /* Nur noch Stage skalieren: weniger GSAP-Props pro Frame; Nachlauf gegen Lenis. */
+        scrub: 1.55,
         anticipatePin: 0,
         invalidateOnRefresh: true
       }
@@ -903,46 +907,6 @@ function initCinematicVideo() {
       { scale: 1, ease: 'power2.out', duration: videoTweenDur },
       0
     );
-
-    if (copyLead && copyTrail) {
-      tl.fromTo(
-        copyLead,
-        {
-          x: () => textShiftX(),
-          scale: 0.94,
-          yPercent: -50,
-          transformOrigin: 'left center',
-          force3D: true
-        },
-        {
-          x: 0,
-          scale: 1,
-          yPercent: -50,
-          ease: 'power1.inOut',
-          duration: videoTweenDur,
-          force3D: true
-        },
-        0
-      ).fromTo(
-        copyTrail,
-        {
-          x: () => -textShiftX(),
-          scale: 0.94,
-          yPercent: -50,
-          transformOrigin: 'right center',
-          force3D: true
-        },
-        {
-          x: 0,
-          scale: 1,
-          yPercent: -50,
-          ease: 'power1.inOut',
-          duration: videoTweenDur,
-          force3D: true
-        },
-        0
-      );
-    }
 
     return function cleanupCinematicDesktop() {
       visibilityST.kill();
