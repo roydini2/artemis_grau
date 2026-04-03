@@ -111,28 +111,6 @@
   src: url('../public/fonts/dmsans-latin.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
-@font-face {
-  font-family: 'Greek Stone';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  /* Zwei Pfade: Root-URL (Vercel/Prod) + relativ zu css/ (lokaler Server ohne Root-Mount) */
-  src:
-    url('/public/fonts/greek-stone.woff2') format('woff2'),
-    url('../public/fonts/greek-stone.woff2') format('woff2');
-}
-
-/* PostScript-Name laut Font-Datei: GreekStone — WebKit/iPad matcht oft zuverlässiger als „Greek Stone“ */
-@font-face {
-  font-family: GreekStone;
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src:
-    url('/public/fonts/greek-stone.woff2') format('woff2'),
-    url('../public/fonts/greek-stone.woff2') format('woff2');
-}
-
 :root {
   --bg-light: #F3F0EC;
   --bg-cream: #ECEAE6;
@@ -244,9 +222,9 @@ img { display: block; max-width: 100%; height: auto; }
 
 .preloader-brand {
   font-family: var(--font-display);
-  font-size: clamp(2rem, 5vw, 3.5rem);
-  font-weight: 600;
-  letter-spacing: 0.25em;
+  font-size: clamp(1.65rem, 4.2vw, 2.85rem);
+  font-weight: 400;
+  letter-spacing: 0.24em;
   color: var(--text-on-dark);
 }
 
@@ -993,17 +971,20 @@ html.hero-mobile-desktop-site .scroll-zone--reviews-statue {
   background: rgba(243, 240, 236, 0.35);
 }
 
-/* h1: UA-Bold vermeiden (Safari/iPad setzt sonst Faux-Bold auf Fallback) */
+/*
+ * Hero-Logo: Cinzel (bereits self-hosted) — wie Referenz: dezente klassische Serif, dünn, breites Tracking.
+ * Greek Stone (Dekor) fiel auf iPad/WebKit oft auf Fallback; Cinzel = konsistent mit Überschriften + zuverlässig.
+ */
 h1.hero-title {
-  font-family: GreekStone, 'Greek Stone', Georgia, 'Times New Roman', serif;
-  font-size: clamp(2.85rem, 7.25vw, 5.35rem);
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 5.5vw, 4rem);
   font-weight: 400;
   font-style: normal;
   font-synthesis: none;
   line-height: 1.02;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.24em;
   color: rgba(243, 240, 236, 0.96);
-  margin: 0 0 1.15rem;
+  margin: 0 0 1rem;
   white-space: nowrap;
   -webkit-font-smoothing: antialiased;
 }
@@ -3518,8 +3499,8 @@ body:has(.legal-header) {
   }
 
   h1.hero-title {
-    font-size: clamp(2.2rem, 10.2vw, 3.55rem);
-    letter-spacing: 0.14em;
+    font-size: clamp(1.85rem, 8.2vw, 2.95rem);
+    letter-spacing: 0.18em;
   }
 
   .hero-cta {

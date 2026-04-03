@@ -16,36 +16,9 @@
   <meta name="geo.region" content="DE-BE">
   <meta name="geo.placename" content="Berlin-Niederschöneweide">
 
-  <link rel="preload" id="preload-greek-stone" href="public/fonts/greek-stone.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="public/fonts/cinzel-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="public/fonts/dmsans-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="public/images/hero-image.webp" as="image" type="image/webp" fetchpriority="high">
-
-  <!-- WebKit/iPad: FontFace + dieselbe aufgelöste URL wie Preload — verhindert fehlgeschlagene @font-face-Pfade -->
-  <script>
-    (function () {
-      if (!window.FontFace || !document.fonts) return;
-      var el = document.getElementById('preload-greek-stone');
-      if (!el) return;
-      var a = document.createElement('a');
-      a.href = el.getAttribute('href') || '';
-      var url = a.href;
-      if (!url) return;
-      function addFamily(name) {
-        var ff = new FontFace(name, 'url(' + JSON.stringify(url) + ')', {
-          style: 'normal',
-          weight: '400'
-        });
-        return ff.load().then(function (loaded) {
-          document.fonts.add(loaded);
-        });
-      }
-      try {
-        addFamily('GreekStone').catch(function () {});
-        addFamily('Greek Stone').catch(function () {});
-      } catch (e) {}
-    })();
-  </script>
 
   <meta property="og:url" content="https://restaurant-artemis-berlin.de/">
   <meta property="og:site_name" content="Restaurant Artemis">
