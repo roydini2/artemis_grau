@@ -781,13 +781,89 @@ html.hero-mobile-desktop-site .preloader {
   height: var(--vv-h, 100svh);
 }
 
-/* Szenen / Zonen: Desktop-Ansicht >768px umgeht @media-Mobile — nur svh / vv-Höhe */
+/*
+ * Cinematic: Desktop-Ansicht am Phone nutzt >768px-CSS → Stage war 100vw×vv (Vollbild).
+ * Gleiches Raster wie @media (max-width:768px), damit Video wieder „eingerahmt“ und die Sektion scrollbar.
+ */
 html.hero-mobile-desktop-site .cinematic-scene {
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  align-content: start;
+  gap: clamp(0.55rem, 2.2vw, 0.9rem);
+  padding: clamp(1rem, 4vw, 1.5rem) 1.25rem;
+  padding-bottom: calc(var(--dock-safe-bottom) + 0.85rem);
+  box-sizing: border-box;
   min-height: 100svh;
+  overflow: visible;
+}
+
+html.hero-mobile-desktop-site .cinematic-copy-follow {
+  display: contents;
+}
+
+html.hero-mobile-desktop-site .cinematic-copy-follow .cinematic-copy {
+  pointer-events: auto;
+}
+
+html.hero-mobile-desktop-site .cinematic-copy--kicker {
+  position: static;
+  grid-row: 1;
+  width: 100%;
+  max-width: 22rem;
+  text-align: center;
+  text-shadow: 0 1px 16px rgba(11, 16, 18, 0.5);
+}
+
+html.hero-mobile-desktop-site .cinematic-copy--lead {
+  position: static;
+  grid-row: 2;
+  width: 100%;
+  max-width: min(22rem, 92vw);
+  margin: 0;
+  text-align: center;
+  transform: none !important;
+  text-shadow: 0 1px 18px rgba(11, 16, 18, 0.45);
+}
+
+html.hero-mobile-desktop-site .cinematic-stage-outer {
+  position: static;
+  grid-row: 3;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: auto;
+}
+
+html.hero-mobile-desktop-site .cinematic-copy--trail {
+  position: static;
+  grid-row: 4;
+  width: 100%;
+  max-width: min(22rem, 92vw);
+  margin: 0;
+  padding: 0 0.25rem;
+  text-align: center;
+  transform: none !important;
+  right: auto;
+  left: auto;
+  top: auto;
+}
+
+html.hero-mobile-desktop-site .cinematic-mobile-play {
+  display: flex;
+}
+
+html.hero-mobile-desktop-site .cinematic-mobile-play.is-concealed {
+  display: none;
+  pointer-events: none;
 }
 
 html.hero-mobile-desktop-site .cinematic-stage {
-  height: var(--vv-h, 100svh);
+  width: min(92vw, calc(100% - 1.5rem));
+  height: min(56svh, 62svh);
+  max-height: 520px;
+  will-change: auto;
 }
 
 html.hero-mobile-desktop-site .scroll-zone,
