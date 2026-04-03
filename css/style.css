@@ -674,17 +674,18 @@ body.is-intro-active .grain-overlay {
   object-fit: cover;
 }
 
-/* Touch inkl. „Desktop-Website“ (Breite >768): gleicher Media-Lock wie schmale Viewports (JS setzt --hero-media-locked-h). */
-@media (pointer: coarse) {
-  .hero-video-plane {
-    transform: translateZ(0);
-    min-height: 100dvh;
-    min-height: 100lvh;
-  }
+/*
+ * JS setzt html.hero-touch-stable bei Touchgerät (maxTouchPoints / schmal / coarse).
+ * Nötig für „Desktop-Website“: dort oft pointer:fine + Breite >768, sonst greifen 168% + bottom top → Sprung bei UI-Leiste.
+ */
+html.hero-touch-stable .hero-video-plane {
+  transform: translateZ(0);
+  min-height: 100dvh;
+  min-height: 100lvh;
+}
 
-  .hero-video-media {
-    height: var(--hero-media-locked-h, 135%);
-  }
+html.hero-touch-stable .hero-video-media {
+  height: var(--hero-media-locked-h, 135%);
 }
 
 .hero-overlay {

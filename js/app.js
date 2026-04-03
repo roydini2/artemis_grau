@@ -241,9 +241,18 @@ let heroParallaxTravelPx =
 let heroParallaxScrollRangePx = 720;
 
 function heroUsesTouchFrozenLayout() {
-  return (
-    window.matchMedia('(max-width: 768px)').matches ||
-    window.matchMedia('(pointer: coarse)').matches
+  const narrow = window.matchMedia('(max-width: 768px)').matches;
+  const coarse = window.matchMedia('(pointer: coarse)').matches;
+  const touchDevice =
+    typeof navigator !== 'undefined' && Number(navigator.maxTouchPoints || 0) > 0;
+  /* Desktop-Ansicht am Handy: oft breit + pointer:fine — nur maxTouchPoints erkennt das Gerät. */
+  return narrow || coarse || touchDevice;
+}
+
+function syncHtmlHeroTouchStableClass() {
+  document.documentElement.classList.toggle(
+    'hero-touch-stable',
+    heroUsesTouchFrozenLayout()
   );
 }
 
@@ -402,6 +411,7 @@ function initHeroParallax() {
   } else {
     syncHeroParallaxMetrics();
   }
+  syncHtmlHeroTouchStableClass();
 
   const statuePlane = document.getElementById('footer-statue-video-wrap');
 
@@ -446,6 +456,7 @@ function initHeroParallax() {
     if (!touchHero) {
       syncHeroParallaxMetrics();
     }
+    syncHtmlHeroTouchStableClass();
     ScrollTrigger.refresh();
   });
 }
@@ -1038,6 +1049,7 @@ function onResize() {
     } else {
       syncHeroParallaxMetrics();
     }
+    syncHtmlHeroTouchStableClass();
     ScrollTrigger.refresh();
     invalidateFooterStatueFrames();
   }, 150);
@@ -1066,9 +1078,12 @@ async function init() {
 
   window.addEventListener('load', () => {
     syncScrollTop();
-    if (!heroUsesTouchFrozenLayout()) {
+    if (heroUsesTouchFrozenLayout()) {
+      applyHeroTouchLayoutLock();
+    } else {
       syncHeroParallaxMetrics();
     }
+    syncHtmlHeroTouchStableClass();
     ScrollTrigger.refresh();
   });
 
@@ -1091,6 +1106,7 @@ async function init() {
       } else {
         syncHeroParallaxMetrics();
       }
+      syncHtmlHeroTouchStableClass();
       ScrollTrigger.refresh();
     }, 300);
   });
