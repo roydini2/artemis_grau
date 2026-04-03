@@ -689,15 +689,99 @@ html.hero-touch-stable .hero-video-media {
 }
 
 /*
- * „Desktop-Website“ am Handy: kein Parallax + kein --hero-media-locked-h (JS).
- * Statt dvh/lvh-Lock: eine Viewport-Einheit, weniger Zerreißen mit breitem Layout-Viewport.
+ * „Desktop-Website“ am Handy: Breite oft >768px → @media (max-width:768px) greift nicht;
+ * dvh/lvh/vh springen mit der Adressleiste. JS setzt --vv-* aus visualViewport.
  */
-html.hero-mobile-desktop-site.hero-touch-stable .hero-video-plane {
+html.hero-mobile-desktop-site,
+html.hero-mobile-desktop-site body {
   min-height: 100svh;
+}
+
+html.hero-mobile-desktop-site .hero--video {
+  min-height: clamp(155svh, 172svh, 195svh);
+}
+
+html.hero-mobile-desktop-site .hero-content {
+  min-height: 100svh;
+}
+
+html.hero-mobile-desktop-site .hero-video-plane {
+  inset: auto;
+  top: var(--vv-top, 0px);
+  left: var(--vv-left, 0px);
+  width: var(--vv-w, 100%);
+  height: var(--vv-h, 100svh);
+  min-height: 0;
+}
+
+html.hero-mobile-desktop-site.hero-touch-stable .hero-video-plane {
+  min-height: 0;
 }
 
 html.hero-mobile-desktop-site.hero-touch-stable .hero-video-media {
   height: 168%;
+}
+
+html.hero-mobile-desktop-site .grain-overlay {
+  inset: auto;
+  top: var(--vv-top, 0px);
+  left: var(--vv-left, 0px);
+  width: var(--vv-w, 100%);
+  height: var(--vv-h, 100svh);
+  min-height: 0;
+}
+
+/* Weitere fixed full-bleed: sonst nur Hero/Grain stabil, Statue-Canvas & Overlays „atmen“ mit Layout-Viewport */
+html.hero-mobile-desktop-site .footer-statue-video-plane {
+  inset: auto;
+  top: var(--vv-top, 0px);
+  left: var(--vv-left, 0px);
+  width: var(--vv-w, 100%);
+  height: var(--vv-h, 100svh);
+  min-height: 0;
+}
+
+html.hero-mobile-desktop-site .dark-overlay {
+  inset: auto;
+  top: var(--vv-top, 0px);
+  left: var(--vv-left, 0px);
+  width: var(--vv-w, 100%);
+  height: var(--vv-h, 100svh);
+}
+
+html.hero-mobile-desktop-site .mobile-nav {
+  inset: auto;
+  top: var(--vv-top, 0px);
+  left: var(--vv-left, 0px);
+  width: var(--vv-w, 100%);
+  height: var(--vv-h, 100svh);
+  min-height: 0;
+}
+
+html.hero-mobile-desktop-site .preloader {
+  inset: auto;
+  top: var(--vv-top, 0px);
+  left: var(--vv-left, 0px);
+  width: var(--vv-w, 100%);
+  height: var(--vv-h, 100svh);
+}
+
+/* Szenen / Zonen: Desktop-Ansicht >768px umgeht @media-Mobile — nur svh / vv-Höhe */
+html.hero-mobile-desktop-site .cinematic-scene {
+  min-height: 100svh;
+}
+
+html.hero-mobile-desktop-site .cinematic-stage {
+  height: var(--vv-h, 100svh);
+}
+
+html.hero-mobile-desktop-site .scroll-zone,
+html.hero-mobile-desktop-site .scroll-zone--stats {
+  height: 100svh;
+}
+
+html.hero-mobile-desktop-site .scroll-zone--reviews-statue {
+  height: 150svh;
 }
 
 .hero-overlay {

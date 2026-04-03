@@ -311,10 +311,45 @@ function initMobileNavAutoOpenAtBottom() {
 let lastResizeWidth = document.documentElement.clientWidth;
 let lastVisualViewportWidth = Math.round(window.visualViewport?.width ?? window.innerWidth);
 
+let vvCssSyncRaf = null;
+
+/**
+ * „Desktop-Website“ am Phone: Layout-Viewport-Höhe springt mit der Adressleiste, der sichtbare Bereich nicht.
+ * #hero-video-plane + .grain an visualViewport (Größe + offsetTop) koppeln — weniger „Verziehen“ bei UI ein/aus.
+ */
+function syncVisualViewportCssVars() {
+  const root = document.documentElement;
+  if (!likelyCompactScreenWithWideLayoutViewport()) {
+    root.style.removeProperty('--vv-w');
+    root.style.removeProperty('--vv-h');
+    root.style.removeProperty('--vv-top');
+    root.style.removeProperty('--vv-left');
+    return;
+  }
+  const vv = window.visualViewport;
+  if (!vv) return;
+  root.style.setProperty('--vv-w', `${Math.round(vv.width)}px`);
+  root.style.setProperty('--vv-h', `${Math.round(vv.height)}px`);
+  root.style.setProperty('--vv-top', `${Math.round(vv.offsetTop)}px`);
+  root.style.setProperty('--vv-left', `${Math.round(vv.offsetLeft)}px`);
+}
+
+function scheduleVisualViewportCssSync() {
+  if (vvCssSyncRaf != null) cancelAnimationFrame(vvCssSyncRaf);
+  vvCssSyncRaf = requestAnimationFrame(() => {
+    vvCssSyncRaf = null;
+    syncVisualViewportCssVars();
+  });
+}
+
 /** Breitenwechsel (z. B. Desktop-Site umschalten) — manche Webviews feuern layout-relevant nur über visualViewport. */
 function onVisualViewportResizeForHero() {
   const vv = window.visualViewport;
   if (!vv) return;
+  if (likelyCompactScreenWithWideLayoutViewport()) {
+    scheduleVisualViewportCssSync();
+    return;
+  }
   const w = Math.round(vv.width);
   if (Math.abs(w - lastVisualViewportWidth) < 32) return;
   lastVisualViewportWidth = w;
@@ -326,6 +361,11 @@ function onVisualViewportResizeForHero() {
   }
   syncHtmlHeroTouchStableClass();
   ScrollTrigger.refresh();
+}
+
+function onVisualViewportScrollForHero() {
+  if (!likelyCompactScreenWithWideLayoutViewport()) return;
+  scheduleVisualViewportCssSync();
 }
 
 /** Hero-Parallax-Endpunkt: nicht jedes Frame von innerHeight abhängig (Mobile-Leiste ein/aus beim Loslassen → sonst Schlag). */
@@ -358,6 +398,7 @@ function syncHtmlHeroMobileDesktopSiteClass() {
     'hero-mobile-desktop-site',
     likelyCompactScreenWithWideLayoutViewport()
   );
+  syncVisualViewportCssVars();
 }
 
 function syncHtmlHeroTouchStableClass() {
@@ -579,6 +620,7 @@ function initHeroParallax() {
       syncHeroParallaxMetrics();
     }
     syncHtmlHeroTouchStableClass();
+    scheduleVisualViewportCssSync();
     ScrollTrigger.refresh();
   });
 }
@@ -1165,6 +1207,9 @@ let invalidateFooterStatueFrames = () => {};
 
 function onResize() {
   const newW = document.documentElement.clientWidth;
+  if (likelyCompactScreenWithWideLayoutViewport()) {
+    scheduleVisualViewportCssSync();
+  }
   if (newW === lastResizeWidth) return;
   lastResizeWidth = newW;
 
@@ -1176,6 +1221,7 @@ function onResize() {
       syncHeroParallaxMetrics();
     }
     syncHtmlHeroTouchStableClass();
+    scheduleVisualViewportCssSync();
     ScrollTrigger.refresh();
     invalidateFooterStatueFrames();
   }, 150);
@@ -1210,6 +1256,7 @@ async function init() {
       syncHeroParallaxMetrics();
     }
     syncHtmlHeroTouchStableClass();
+    scheduleVisualViewportCssSync();
     ScrollTrigger.refresh();
   });
 
@@ -1222,6 +1269,7 @@ async function init() {
 
   window.addEventListener('resize', onResize);
   window.visualViewport?.addEventListener('resize', onVisualViewportResizeForHero);
+  window.visualViewport?.addEventListener('scroll', onVisualViewportScrollForHero, { passive: true });
 
   await refreshScrollLayoutAfterBoot();
 
@@ -1234,6 +1282,7 @@ async function init() {
         syncHeroParallaxMetrics();
       }
       syncHtmlHeroTouchStableClass();
+      scheduleVisualViewportCssSync();
       ScrollTrigger.refresh();
     }, 300);
   });
