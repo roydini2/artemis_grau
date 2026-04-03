@@ -10,8 +10,25 @@ gsap.registerPlugin(ScrollTrigger);
 const LENIS_USE_SCROLL_TRIGGER_SCROLLER_PROXY = true;
 const LENIS_DISABLE_WHEN_MOBILE_COARSE = true;
 
+/**
+ * „Desktop-Website“ am Phone: kurze physische Kante, aber Layout-Viewport breit (z. B. 980px).
+ * Dort greift (max-width:768px) nicht → Lenis würde sonst trotzdem laufen und mit Touch kollidieren.
+ */
+function likelyCompactScreenWithWideLayoutViewport() {
+  try {
+    const sw = Math.min(window.screen.width, window.screen.height);
+    const iw = window.innerWidth;
+    if (sw <= 0 || iw <= 0) return false;
+    if (sw <= 560 && iw >= 620) return true;
+  } catch (e) {
+    /* ignore */
+  }
+  return false;
+}
+
 function shouldUseLenis() {
   if (!LENIS_DISABLE_WHEN_MOBILE_COARSE) return true;
+  if (likelyCompactScreenWithWideLayoutViewport()) return false;
   return !window.matchMedia('(max-width: 768px) and (pointer: coarse)').matches;
 }
 
@@ -321,22 +338,6 @@ let heroParallaxTravelPx =
  */
 let heroParallaxScrollRangePx = 720;
 
-/**
- * Typisch „Desktop-Website“ am Phone: kurze physische Kante (Handy), aber Layout-Viewport breit.
- * Kein ontouchstart / maxTouchPoints — auf Desktop-Chrome oft false positives.
- */
-function likelyCompactScreenWithWideLayoutViewport() {
-  try {
-    const sw = Math.min(window.screen.width, window.screen.height);
-    const iw = window.innerWidth;
-    if (sw <= 0 || iw <= 0) return false;
-    if (sw <= 560 && iw >= 620) return true;
-  } catch (e) {
-    /* ignore */
-  }
-  return false;
-}
-
 function heroUsesTouchFrozenLayout() {
   const narrow = window.matchMedia('(max-width: 768px)').matches;
   const coarse = window.matchMedia('(pointer: coarse)').matches;
@@ -352,11 +353,19 @@ function heroUsesTouchFrozenLayout() {
   );
 }
 
+function syncHtmlHeroMobileDesktopSiteClass() {
+  document.documentElement.classList.toggle(
+    'hero-mobile-desktop-site',
+    likelyCompactScreenWithWideLayoutViewport()
+  );
+}
+
 function syncHtmlHeroTouchStableClass() {
   document.documentElement.classList.toggle(
     'hero-touch-stable',
     heroUsesTouchFrozenLayout()
   );
+  syncHtmlHeroMobileDesktopSiteClass();
 }
 
 /** Touch / schmale Viewport: Travel, Scroll-Range, Media-Höhe fest — inkl. „Desktop-Ansicht“ am Handy (Breite >768). */
@@ -365,12 +374,17 @@ function applyHeroTouchLayoutLock() {
   const el = document.querySelector('.hero');
   const plane = document.getElementById('hero-video-plane');
   const vh = window.visualViewport?.height ?? window.innerHeight;
-  heroParallaxTravelPx = vh * 0.22;
+  const mobileDesktopSite = likelyCompactScreenWithWideLayoutViewport();
+  heroParallaxTravelPx = mobileDesktopSite ? 0 : vh * 0.22;
   if (el) {
     heroParallaxScrollRangePx = Math.max(400, Math.round(el.getBoundingClientRect().height));
   }
   if (plane) {
-    plane.style.setProperty('--hero-media-locked-h', `${Math.round(vh * 1.28)}px`);
+    if (mobileDesktopSite) {
+      plane.style.removeProperty('--hero-media-locked-h');
+    } else {
+      plane.style.setProperty('--hero-media-locked-h', `${Math.round(vh * 1.28)}px`);
+    }
   }
 }
 
@@ -529,6 +543,7 @@ function initHeroParallax() {
     if (statuePlane) statuePlane.style.zIndex = '1';
   };
 
+  const mobileDesktopSite = likelyCompactScreenWithWideLayoutViewport();
   const parallaxEnd = {
     y: () => -heroParallaxTravelPx,
     ease: 'none',
@@ -541,7 +556,11 @@ function initHeroParallax() {
       invalidateOnRefresh: !touchHero
     }
   };
-  gsap.fromTo(media, { y: 0 }, parallaxEnd);
+  if (mobileDesktopSite) {
+    gsap.set(media, { y: 0, clearProps: 'transform' });
+  } else {
+    gsap.fromTo(media, { y: 0 }, parallaxEnd);
+  }
 
   ScrollTrigger.create({
     trigger: hero,

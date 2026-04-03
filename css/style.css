@@ -688,6 +688,18 @@ html.hero-touch-stable .hero-video-media {
   height: var(--hero-media-locked-h, 135%);
 }
 
+/*
+ * „Desktop-Website“ am Handy: kein Parallax + kein --hero-media-locked-h (JS).
+ * Statt dvh/lvh-Lock: eine Viewport-Einheit, weniger Zerreißen mit breitem Layout-Viewport.
+ */
+html.hero-mobile-desktop-site.hero-touch-stable .hero-video-plane {
+  min-height: 100svh;
+}
+
+html.hero-mobile-desktop-site.hero-touch-stable .hero-video-media {
+  height: 168%;
+}
+
 .hero-overlay {
   position: absolute;
   inset: 0;
