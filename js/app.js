@@ -46,12 +46,12 @@ function setupLenisScroll() {
     return;
   }
 
+  /* Lerp statt fester duration: oft ruhiger mit ScrollTrigger-Scrub + Pin (Cinematic). */
   lenis = new Lenis({
-    /* Etwas straffer = weniger „Gummiband“ gegen ScrollTrigger-Scrub (Cinematic-Pin). */
-    duration: 1,
-    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    lerp: 0.085,
     smoothWheel: true,
-    touchMultiplier: 1.5
+    touchMultiplier: 1.5,
+    wheelMultiplier: 1
   });
 
   /* Pull-to-Refresh / natives Overscroll: Lenis touchmove ist passive:false und kann sonst preventDefault auslösen.
@@ -501,6 +501,33 @@ function finishPreloaderReveal() {
   gsap.set([...layers, grain].filter(Boolean), { clearProps: 'opacity,transform' });
   if (grain) gsap.set(grain, { opacity: 0.04 });
   if (lenis && typeof lenis.resize === 'function') lenis.resize();
+  warmBelowFoldGalleryCaches();
+}
+
+/** Nach Intro: Galerie-URLs im Idle in den Cache legen (kein Preload im Head — LCP/Parser). Lazy <img> nutzt Cache beim Scrollen. */
+const GALLERY_WARMUP_SRCS = [
+  'public/images/hf_20260401_112814_bb9cb2e4-de00-431c-9b4e-a2ac51eeb50e.png',
+  'public/images/hf_20260401_112830_62cdfc50-46ea-41e5-ade4-21bcb3e68feb.png',
+  'public/images/feier/hf_20260401_112437_90efe0bf-d541-4057-82fa-e56047314bed.png',
+  'public/images/terasse.webp',
+  'public/images/feier/hf_20260401_112505_ffe14f9c-c97c-4987-85fe-ffaac6b1e887.png'
+];
+
+function warmBelowFoldGalleryCaches() {
+  const run = () => {
+    GALLERY_WARMUP_SRCS.forEach((src) => {
+      const im = new Image();
+      im.src = src;
+      if (typeof im.decode === 'function') {
+        im.decode().catch(() => {});
+      }
+    });
+  };
+  if (typeof requestIdleCallback === 'function') {
+    requestIdleCallback(run, { timeout: 4500 });
+  } else {
+    setTimeout(run, 600);
+  }
 }
 
 async function initPreloader() {
@@ -839,6 +866,39 @@ function playCinematicFromStart(video) {
   video.addEventListener('loadeddata', fire, { once: true });
 }
 
+/** Desktop Cinematic: Position behalten — kein load() nach erstem Laden (load() setzt currentTime zurück). */
+function resumeCinematicPlayback(video) {
+  if (!video) return;
+  if (video.preload !== 'auto') {
+    video.preload = 'auto';
+  }
+  if (video.readyState === 0) {
+    try {
+      video.load();
+    } catch (e) { /* ignore */ }
+  }
+  const playNow = () => {
+    if (video.ended) {
+      try {
+        video.currentTime = 0;
+      } catch (e) { /* ignore */ }
+    }
+    video.play().catch(() => {});
+  };
+  if (video.readyState >= 2) {
+    playNow();
+    return;
+  }
+  let fired = false;
+  const fire = () => {
+    if (fired) return;
+    fired = true;
+    playNow();
+  };
+  video.addEventListener('canplay', fire, { once: true });
+  video.addEventListener('loadeddata', fire, { once: true });
+}
+
 function initCinematicVideo() {
   const pin = document.getElementById('cinematic-pin');
   const stage = document.getElementById('cinematic-stage');
@@ -861,17 +921,36 @@ function initCinematicVideo() {
       }
       playBtn?.classList.add('is-concealed');
     });
+    video.preload = 'auto';
+    try {
+      video.load();
+    } catch (e) { /* ignore */ }
     playCinematicFromStart(video);
     return;
   }
 
   const videoTweenDur = 1;
+  const textShiftX = () => Math.min(window.innerWidth * 0.032, 48);
 
   function setupCinematicDesktop() {
     const startScale = 0.52;
-    if (copyLead && copyTrail) {
-      gsap.set([copyLead, copyTrail], { clearProps: 'transform' });
+
+    /* Bis zum Pin: nur Poster (preload none) — kein Dekodieren während des Scrollens zur Sektion. */
+    video.preload = 'none';
+    try {
+      video.pause();
+      video.currentTime = 0;
+    } catch (e) {
+      /* ignore */
     }
+
+    const pauseCinematicKeepPosition = () => {
+      try {
+        video.pause();
+      } catch (e) {
+        /* ignore */
+      }
+    };
 
     const tl = gsap.timeline({
       scrollTrigger: {
@@ -879,25 +958,25 @@ function initCinematicVideo() {
         start: 'top top',
         end: '+=120%',
         pin: true,
-        /* Nur noch Stage skalieren: weniger GSAP-Props pro Frame; Nachlauf gegen Lenis. */
-        scrub: 1.55,
+        scrub: 2,
         anticipatePin: 0,
-        invalidateOnRefresh: true
-      }
-    });
-
-    const visibilityST = ScrollTrigger.create({
-      trigger: cinematicSection || pin,
-      start: 'top bottom',
-      end: 'bottom top',
-      invalidateOnRefresh: true,
-      onEnter: () => playCinematicFromStart(video),
-      onEnterBack: () => playCinematicFromStart(video),
-      onLeave: () => {
-        if (video) video.pause();
-      },
-      onLeaveBack: () => {
-        if (video) video.pause();
+        invalidateOnRefresh: true,
+        onEnter: () => {
+          stage.style.willChange = 'transform';
+          resumeCinematicPlayback(video);
+        },
+        onLeave: () => {
+          stage.style.willChange = '';
+          pauseCinematicKeepPosition();
+        },
+        onEnterBack: () => {
+          stage.style.willChange = 'transform';
+          resumeCinematicPlayback(video);
+        },
+        onLeaveBack: () => {
+          stage.style.willChange = '';
+          pauseCinematicKeepPosition();
+        }
       }
     });
 
@@ -908,15 +987,61 @@ function initCinematicVideo() {
       0
     );
 
+    if (copyLead && copyTrail) {
+      tl.fromTo(
+        copyLead,
+        {
+          x: () => textShiftX(),
+          scale: 0.94,
+          yPercent: -50,
+          transformOrigin: 'left center',
+          force3D: true
+        },
+        {
+          x: 0,
+          scale: 1,
+          yPercent: -50,
+          ease: 'power1.inOut',
+          duration: videoTweenDur,
+          force3D: true
+        },
+        0
+      ).fromTo(
+        copyTrail,
+        {
+          x: () => -textShiftX(),
+          scale: 0.94,
+          yPercent: -50,
+          transformOrigin: 'right center',
+          force3D: true
+        },
+        {
+          x: 0,
+          scale: 1,
+          yPercent: -50,
+          ease: 'power1.inOut',
+          duration: videoTweenDur,
+          force3D: true
+        },
+        0
+      );
+    }
+
     return function cleanupCinematicDesktop() {
-      visibilityST.kill();
       tl.scrollTrigger?.kill();
       tl.kill();
+      try {
+        video.pause();
+        video.currentTime = 0;
+        video.preload = 'none';
+      } catch (e) {
+        /* ignore */
+      }
     };
   }
 
   function setupCinematicMobile() {
-    video.preload = 'metadata';
+    video.preload = 'none';
     try {
       video.pause();
       video.currentTime = 0;
@@ -937,6 +1062,12 @@ function initCinematicVideo() {
     };
 
     const onPlayClick = () => {
+      if (video.preload !== 'auto') {
+        video.preload = 'auto';
+      }
+      try {
+        video.load();
+      } catch (e) { /* ignore */ }
       playCinematicFromStart(video);
       playBtn?.classList.add('is-concealed');
     };
@@ -1055,7 +1186,7 @@ function initGalleryPairParallax() {
       trigger: root,
       start: 'top bottom',
       end: 'bottom top',
-      scrub: true,
+      scrub: likelyCompactScreenWithWideLayoutViewport() ? true : 0.42,
       invalidateOnRefresh: !likelyCompactScreenWithWideLayoutViewport()
     };
 
