@@ -2,48 +2,97 @@ if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
 gsap.registerPlugin(ScrollTrigger);
 
+/**
+ * Scroll-Stabilität (Rollback ohne Git: beide auf `false` setzen = Verhalten wie vor diesem Refactor).
+ * - LENIS_USE_SCROLL_TRIGGER_SCROLLER_PROXY: ScrollTrigger nutzt dieselbe Scroll-Quelle wie Lenis (scrollerProxy).
+ * - LENIS_DISABLE_WHEN_MOBILE_COARSE: kein Lenis bei schmal + Grobzeiger → natives Scrollen, weniger Konflikt mit Mobile-Chrome-UI.
+ */
+const LENIS_USE_SCROLL_TRIGGER_SCROLLER_PROXY = true;
+const LENIS_DISABLE_WHEN_MOBILE_COARSE = true;
+
+function shouldUseLenis() {
+  if (!LENIS_DISABLE_WHEN_MOBILE_COARSE) return true;
+  return !window.matchMedia('(max-width: 768px) and (pointer: coarse)').matches;
+}
+
 // ===== DOM =====
 const header = document.getElementById('site-header');
 const menuToggle = document.getElementById('menu-toggle');
 const mobileNav = document.getElementById('mobile-nav');
 
-// ===== LENIS =====
-const lenis = new Lenis({
-  duration: 1.2,
-  easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-  smoothWheel: true,
-  touchMultiplier: 1.5
-});
+// ===== LENIS (optional: auf Mobile-Coarse aus) =====
+let lenis = null;
 
-/* Pull-to-Refresh / natives Overscroll: Lenis touchmove ist passive:false und kann sonst preventDefault auslösen.
-   virtualScroll === false beendet die Verarbeitung ohne preventDefault (Lenis-Doku). */
-lenis.options.virtualScroll = ({ deltaY, event }) => {
-  if (!event?.type?.includes('touch')) return;
-  const limit = typeof lenis.limit === 'number' ? lenis.limit : 0;
-  const scroll = typeof lenis.scroll === 'number' ? lenis.scroll : 0;
-  const edge = 2;
-  if (scroll <= edge && deltaY < -0.5) return false;
-  if (limit > edge && scroll >= limit - edge && deltaY > 0.5) return false;
-};
+function setupLenisScroll() {
+  if (!shouldUseLenis()) {
+    window.addEventListener('scroll', () => ScrollTrigger.update(), { passive: true });
+    return;
+  }
 
-function syncScrollTop() {
-  window.scrollTo(0, 0);
-  lenis.scrollTo(0, { immediate: true });
+  lenis = new Lenis({
+    duration: 1.2,
+    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    smoothWheel: true,
+    touchMultiplier: 1.5
+  });
+
+  /* Pull-to-Refresh / natives Overscroll: Lenis touchmove ist passive:false und kann sonst preventDefault auslösen.
+     virtualScroll === false beendet die Verarbeitung ohne preventDefault (Lenis-Doku). */
+  lenis.options.virtualScroll = ({ deltaY, event }) => {
+    if (!event?.type?.includes('touch')) return;
+    const limit = typeof lenis.limit === 'number' ? lenis.limit : 0;
+    const scroll = typeof lenis.scroll === 'number' ? lenis.scroll : 0;
+    const edge = 2;
+    if (scroll <= edge && deltaY < -0.5) return false;
+    if (limit > edge && scroll >= limit - edge && deltaY > 0.5) return false;
+  };
+
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add((time) => lenis.raf(time * 1000));
+
+  if (LENIS_USE_SCROLL_TRIGGER_SCROLLER_PROXY) {
+    const root = document.documentElement;
+    ScrollTrigger.scrollerProxy(root, {
+      scrollTop(value) {
+        if (arguments.length) {
+          lenis.scrollTo(value, { immediate: true });
+        }
+        return lenis.scroll;
+      },
+      getBoundingClientRect() {
+        return {
+          top: 0,
+          left: 0,
+          width: window.innerWidth,
+          height: window.innerHeight
+        };
+      },
+      pinType: root.style.transform ? 'transform' : 'fixed'
+    });
+    ScrollTrigger.defaults({ scroller: root });
+  }
 }
 
-syncScrollTop();
-
-lenis.on('scroll', ScrollTrigger.update);
-gsap.ticker.add((time) => lenis.raf(time * 1000));
+setupLenisScroll();
 gsap.ticker.lagSmoothing(0);
 
 /** Touch + ScrollTrigger-Scrub: zu hoher Multiplier erzeugt mit Lenis sichtbares „Wackeln“. */
 const lenisTouchCoarseMq = window.matchMedia('(max-width: 768px) and (pointer: coarse)');
 function syncLenisTouchMultiplier() {
+  if (!lenis) return;
   lenis.options.touchMultiplier = lenisTouchCoarseMq.matches ? 1 : 1.5;
 }
 syncLenisTouchMultiplier();
 lenisTouchCoarseMq.addEventListener('change', syncLenisTouchMultiplier);
+
+function syncScrollTop() {
+  window.scrollTo(0, 0);
+  if (lenis) {
+    lenis.scrollTo(0, { immediate: true });
+  }
+}
+
+syncScrollTop();
 
 function getInPageAnchorOffset() {
   return 0;
@@ -59,7 +108,14 @@ function initInPageAnchors() {
     if (!target) return;
     a.addEventListener('click', (e) => {
       e.preventDefault();
-      lenis.scrollTo(target, { offset: getInPageAnchorOffset(), duration: 1.35 });
+      if (lenis) {
+        lenis.scrollTo(target, { offset: getInPageAnchorOffset(), duration: 1.35 });
+      } else {
+        const off = getInPageAnchorOffset();
+        const top =
+          target.getBoundingClientRect().top + window.scrollY + off;
+        window.scrollTo({ top, behavior: 'smooth' });
+      }
     });
   });
 }
@@ -112,11 +168,12 @@ function initMobileNavAutoOpenAtBottom() {
   let lastTouchY = null;
 
   const getLimit = () =>
-    typeof lenis.limit === 'number'
+    lenis && typeof lenis.limit === 'number'
       ? lenis.limit
       : Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
 
-  const getScroll = () => (typeof lenis.scroll === 'number' ? lenis.scroll : window.scrollY);
+  const getScroll = () =>
+    lenis && typeof lenis.scroll === 'number' ? lenis.scroll : window.scrollY;
 
   const disarm = () => {
     armed = false;
@@ -145,7 +202,7 @@ function initMobileNavAutoOpenAtBottom() {
       const limit = getLimit();
       const scroll = getScroll();
       if (scroll < limit - bottomThresholdPx) return;
-      if (Math.abs(lenis.velocity) > 0.22) {
+      if (lenis && Math.abs(lenis.velocity) > 0.22) {
         armTimer = window.setTimeout(tryWhenCalm, 100);
         return;
       }
@@ -154,7 +211,7 @@ function initMobileNavAutoOpenAtBottom() {
     armTimer = window.setTimeout(tryWhenCalm, 400);
   };
 
-  lenis.on('scroll', () => {
+  const onScrollForBottomNav = () => {
     const limit = getLimit();
     const scroll = getScroll();
     if (limit < minScrollablePx) return;
@@ -189,7 +246,13 @@ function initMobileNavAutoOpenAtBottom() {
       wasInBottomZone = true;
       scheduleArmAfterBottomArrival();
     }
-  });
+  };
+
+  if (lenis) {
+    lenis.on('scroll', onScrollForBottomNav);
+  } else {
+    window.addEventListener('scroll', onScrollForBottomNav, { passive: true });
+  }
 
   window.addEventListener(
     'wheel',
@@ -381,7 +444,7 @@ function finishPreloaderReveal() {
   document.body.classList.remove('is-intro-active');
   gsap.set([...layers, grain].filter(Boolean), { clearProps: 'opacity,transform' });
   if (grain) gsap.set(grain, { opacity: 0.04 });
-  if (typeof lenis.resize === 'function') lenis.resize();
+  if (lenis && typeof lenis.resize === 'function') lenis.resize();
 }
 
 async function initPreloader() {
@@ -1050,7 +1113,11 @@ function initBackToTop() {
   const btn = document.getElementById('fab-top');
   if (!btn) return;
   btn.addEventListener('click', () => {
-    lenis.scrollTo(0, { duration: 1.5 });
+    if (lenis) {
+      lenis.scrollTo(0, { duration: 1.5 });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   });
 }
 
@@ -1064,7 +1131,7 @@ function configureScrollTriggerGlobals() {
 /** Nach Preloader + Intro: Scroll/Lenis und ST auf dasselbe Layout bringen (verhindert initialen „Hüpfer“ bei Pins). */
 async function refreshScrollLayoutAfterBoot() {
   syncScrollTop();
-  if (typeof lenis.resize === 'function') lenis.resize();
+  if (lenis && typeof lenis.resize === 'function') lenis.resize();
   await new Promise((resolve) => {
     requestAnimationFrame(() => requestAnimationFrame(resolve));
   });
