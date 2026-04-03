@@ -229,6 +229,24 @@ function initMobileNavAutoOpenAtBottom() {
 }
 
 let lastResizeWidth = document.documentElement.clientWidth;
+let lastVisualViewportWidth = Math.round(window.visualViewport?.width ?? window.innerWidth);
+
+/** Breitenwechsel (z. B. Desktop-Site umschalten) — manche Webviews feuern layout-relevant nur über visualViewport. */
+function onVisualViewportResizeForHero() {
+  const vv = window.visualViewport;
+  if (!vv) return;
+  const w = Math.round(vv.width);
+  if (Math.abs(w - lastVisualViewportWidth) < 32) return;
+  lastVisualViewportWidth = w;
+  lastResizeWidth = document.documentElement.clientWidth;
+  if (heroUsesTouchFrozenLayout()) {
+    applyHeroTouchLayoutLock();
+  } else {
+    syncHeroParallaxMetrics();
+  }
+  syncHtmlHeroTouchStableClass();
+  ScrollTrigger.refresh();
+}
 
 /** Hero-Parallax-Endpunkt: nicht jedes Frame von innerHeight abhängig (Mobile-Leiste ein/aus beim Loslassen → sonst Schlag). */
 let heroParallaxTravelPx =
@@ -240,13 +258,35 @@ let heroParallaxTravelPx =
  */
 let heroParallaxScrollRangePx = 720;
 
+/**
+ * Typisch „Desktop-Website“ am Phone: kurze physische Kante (Handy), aber Layout-Viewport breit.
+ * Kein ontouchstart / maxTouchPoints — auf Desktop-Chrome oft false positives.
+ */
+function likelyCompactScreenWithWideLayoutViewport() {
+  try {
+    const sw = Math.min(window.screen.width, window.screen.height);
+    const iw = window.innerWidth;
+    if (sw <= 0 || iw <= 0) return false;
+    if (sw <= 560 && iw >= 620) return true;
+  } catch (e) {
+    /* ignore */
+  }
+  return false;
+}
+
 function heroUsesTouchFrozenLayout() {
   const narrow = window.matchMedia('(max-width: 768px)').matches;
   const coarse = window.matchMedia('(pointer: coarse)').matches;
-  const touchDevice =
+  const anyCoarse = window.matchMedia('(any-pointer: coarse)').matches;
+  const touchPts =
     typeof navigator !== 'undefined' && Number(navigator.maxTouchPoints || 0) > 0;
-  /* Desktop-Ansicht am Handy: oft breit + pointer:fine — nur maxTouchPoints erkennt das Gerät. */
-  return narrow || coarse || touchDevice;
+  return (
+    narrow ||
+    coarse ||
+    anyCoarse ||
+    touchPts ||
+    likelyCompactScreenWithWideLayoutViewport()
+  );
 }
 
 function syncHtmlHeroTouchStableClass() {
@@ -1095,6 +1135,7 @@ async function init() {
   });
 
   window.addEventListener('resize', onResize);
+  window.visualViewport?.addEventListener('resize', onVisualViewportResizeForHero);
 
   await refreshScrollLayoutAfterBoot();
 
