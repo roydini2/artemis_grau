@@ -875,8 +875,9 @@ function initCinematicVideo() {
         start: 'top top',
         end: '+=120%',
         pin: true,
-        scrub: 0.55,
-        anticipatePin: 1,
+        /* Lenis interpoliert Scroll — zu enger scrub (0.55) ruckelt; etwas Nachlauf glättet die Timeline. */
+        scrub: 1.15,
+        anticipatePin: 0,
         invalidateOnRefresh: true
       }
     });
@@ -1205,7 +1206,8 @@ function initBackToTop() {
 function configureScrollTriggerGlobals() {
   ScrollTrigger.config({
     ignoreMobileResize: false,
-    anticipatePin: 1
+    /* Nur Cinematic nutzt pin; anticipatePin:1 erzeugt extra Layout-Arbeit beim Einrollen. */
+    anticipatePin: 0
   });
 }
 

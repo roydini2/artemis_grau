@@ -2015,6 +2015,15 @@ html.hero-mobile-desktop-site .scroll-zone--reviews-statue {
   will-change: transform;
 }
 
+/* Desktop: kein dauerhaftes will-change auf Vollbild-Video — weniger Compositing-Last beim Pin+Scale+Lenis */
+@media (min-width: 769px) {
+  .cinematic-stage {
+    will-change: auto;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+}
+
 .cinematic-video-el {
   position: absolute;
   inset: 0;
