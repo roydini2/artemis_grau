@@ -3,6 +3,10 @@
   "outputDirectory": ".",
   "headers": [
     {
+      "source": "/public/fonts/(.*).woff2",
+      "headers": [{ "key": "Content-Type", "value": "font/woff2" }]
+    },
+    {
       "source": "/(.*)",
       "headers": [
         { "key": "X-Content-Type-Options", "value": "nosniff" },
