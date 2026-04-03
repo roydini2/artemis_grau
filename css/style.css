@@ -122,6 +122,17 @@
     url('../public/fonts/greek-stone.woff2') format('woff2');
 }
 
+/* PostScript-Name laut Font-Datei: GreekStone — WebKit/iPad matcht oft zuverlässiger als „Greek Stone“ */
+@font-face {
+  font-family: GreekStone;
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    url('/public/fonts/greek-stone.woff2') format('woff2'),
+    url('../public/fonts/greek-stone.woff2') format('woff2');
+}
+
 :root {
   --bg-light: #F3F0EC;
   --bg-cream: #ECEAE6;
@@ -682,9 +693,8 @@ body.is-intro-active .grain-overlay {
  * Fokuspunkt nach rechts legen, damit der Teller wie auf Desktop sichtbar bleibt.
  */
 @media (min-width: 769px) and (max-width: 1024px) {
-  /* Etwas weniger Teller: Fokus leicht nach links (~79% statt 84%). */
   .hero-video {
-    object-position: 79% 42%;
+    object-position: 83% 42%;
   }
 }
 
@@ -985,7 +995,7 @@ html.hero-mobile-desktop-site .scroll-zone--reviews-statue {
 
 /* h1: UA-Bold vermeiden (Safari/iPad setzt sonst Faux-Bold auf Fallback) */
 h1.hero-title {
-  font-family: 'Greek Stone', Georgia, 'Times New Roman', serif;
+  font-family: GreekStone, 'Greek Stone', Georgia, 'Times New Roman', serif;
   font-size: clamp(2.85rem, 7.25vw, 5.35rem);
   font-weight: 400;
   font-style: normal;
@@ -3481,7 +3491,7 @@ body:has(.legal-header) {
   }
 
   .hero-video {
-    object-position: 69% 42%;
+    object-position: 73% 42%;
   }
 
   /*

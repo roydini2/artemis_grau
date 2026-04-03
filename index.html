@@ -31,16 +31,18 @@
       a.href = el.getAttribute('href') || '';
       var url = a.href;
       if (!url) return;
-      try {
-        var ff = new FontFace('Greek Stone', 'url(' + JSON.stringify(url) + ')', {
+      function addFamily(name) {
+        var ff = new FontFace(name, 'url(' + JSON.stringify(url) + ')', {
           style: 'normal',
           weight: '400'
         });
-        ff.load()
-          .then(function (loaded) {
-            document.fonts.add(loaded);
-          })
-          .catch(function () {});
+        return ff.load().then(function (loaded) {
+          document.fonts.add(loaded);
+        });
+      }
+      try {
+        addFamily('GreekStone').catch(function () {});
+        addFamily('Greek Stone').catch(function () {});
       } catch (e) {}
     })();
   </script>
