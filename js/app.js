@@ -1297,8 +1297,12 @@ function initBackToTop() {
 
 function configureScrollTriggerGlobals() {
   ScrollTrigger.config({
-    ignoreMobileResize: false,
-    /* Nur Cinematic nutzt pin; anticipatePin:1 erzeugt extra Layout-Arbeit beim Einrollen. */
+    /*
+     * Ohne Lenis (typisches Touch-Phone): Browser-Leiste ein/aus triggert Pseudo-Resizes.
+     * ST.refresh() danach verzieht Parallax/Pins unterhalb der Video-Sektion — ignorieren.
+     * Desktop mit Lenis: echte Fenstergröße soll weiter refreshen (ignoreMobileResize: false).
+     */
+    ignoreMobileResize: !shouldUseLenis(),
     anticipatePin: 0
   });
 }
