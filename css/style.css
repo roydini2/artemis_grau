@@ -679,8 +679,9 @@ body.is-intro-active .grain-overlay {
  * Fokuspunkt nach rechts legen, damit der Teller wie auf Desktop sichtbar bleibt.
  */
 @media (min-width: 769px) and (max-width: 1024px) {
+  /* Etwas weniger Teller: Fokus leicht nach links (~79% statt 84%). */
   .hero-video {
-    object-position: 84% 42%;
+    object-position: 79% 42%;
   }
 }
 
@@ -984,9 +985,8 @@ html.hero-mobile-desktop-site .scroll-zone--reviews-statue {
   font-size: clamp(2.85rem, 7.25vw, 5.35rem);
   font-weight: 400;
   line-height: 1.02;
-  /* Mehr Luft: wirkt graziler; schwere Wort-Ligatur der Schrift abschalten → feinere Glyphen */
-  letter-spacing: 0.2em;
-  font-feature-settings: 'liga' 0, 'clig' 0, 'calt' 0;
+  /* Ohne font-feature-Override: WebKit/iPad nutzt Greek Stone korrekt (liga 0 kann Fallback auslösen). */
+  letter-spacing: 0.18em;
   color: rgba(243, 240, 236, 0.96);
   margin: 0 0 1.15rem;
   white-space: nowrap;
@@ -3476,7 +3476,7 @@ body:has(.legal-header) {
   }
 
   .hero-video {
-    object-position: 72% 42%;
+    object-position: 69% 42%;
   }
 
   /*
@@ -3504,8 +3504,7 @@ body:has(.legal-header) {
 
   .hero-title {
     font-size: clamp(2.2rem, 10.2vw, 3.55rem);
-    letter-spacing: 0.16em;
-    font-feature-settings: 'liga' 0, 'clig' 0, 'calt' 0;
+    letter-spacing: 0.14em;
   }
 
   .hero-cta {
